@@ -1,8 +1,9 @@
-import { type NextRequest } from 'next/server'
-import { updateSession } from '@/lib/supabase/middleware'
+import { type NextRequest, NextResponse } from 'next/server'
 
+// COMPLETELY DISABLED - No middleware, no redirects, nothing
 export async function middleware(request: NextRequest) {
-  return await updateSession(request)
+  // Just pass everything through, no checks, no redirects
+  return NextResponse.next()
 }
 
 export const config = {
