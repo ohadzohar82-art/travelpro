@@ -271,7 +271,7 @@ export function PackageEditor({ packageId }: { packageId: string }) {
   }
 
   // Safety check - ensure pkg has required properties
-  if (!pkg.id || !pkg.agency_id) {
+  if (!pkg || !pkg.id || !pkg.agency_id) {
     return (
       <div className="flex items-center justify-center h-64">
         <Card>
