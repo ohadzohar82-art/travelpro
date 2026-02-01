@@ -21,87 +21,68 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const checkAuth = async () => {
+      console.log('=== DASHBOARD AUTH CHECK START ===')
+      
       try {
         const supabase = createClient()
         
-        // Give cookies time to be available after redirect
-        await new Promise(resolve => setTimeout(resolve, 300))
+        // Wait a moment for cookies
+        await new Promise(resolve => setTimeout(resolve, 500))
         
-        console.log('Dashboard: Checking authentication...')
+        console.log('Checking session...')
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+        console.log('Session result:', { 
+          hasSession: !!session, 
+          hasUser: !!session?.user, 
+          userId: session?.user?.id,
+          error: sessionError?.message 
+        })
         
-        // Try multiple times to get session (cookies might not be ready immediately)
-        let session = null
-        let authUser = null
-        let attempts = 0
-        const maxAttempts = 8
-        
-        while (attempts < maxAttempts && !session && !authUser) {
-          console.log(`Dashboard: Auth check attempt ${attempts + 1}/${maxAttempts}`)
-          
-          // First try getSession (uses cookies)
-          const { data: { session: sessionData }, error: sessionError } = await supabase.auth.getSession()
-          console.log('Dashboard: getSession result:', { hasSession: !!sessionData, hasUser: !!sessionData?.user, error: sessionError?.message })
-          
-          if (sessionData && sessionData.user && !sessionError) {
-            session = sessionData
-            authUser = sessionData.user
-            console.log('Dashboard: Session found!', authUser.id)
-            break
-          }
-          
-          // If no session, try getUser (might have token)
-          const { data: { user: userData }, error: userError } = await supabase.auth.getUser()
-          console.log('Dashboard: getUser result:', { hasUser: !!userData, error: userError?.message })
-          
-          if (userData && !userError) {
-            authUser = userData
-            console.log('Dashboard: User found via getUser!', authUser.id)
-            break
-          }
-          
-          // Wait before retry
-          if (attempts < maxAttempts - 1) {
-            await new Promise(resolve => setTimeout(resolve, 400))
-          }
-          attempts++
-        }
-        
-        // If we still don't have a user after retries, redirect
-        if (!authUser) {
-          console.error('Dashboard: No authenticated user found after all retries, redirecting to login')
-          router.push('/login')
+        if (session?.user) {
+          console.log('Session found, user:', session.user.id)
+          await loadUserData(supabase, session.user.id)
           return
         }
         
-        console.log('Dashboard: Authentication successful, loading user data')
+        console.log('No session, trying getUser...')
+        const { data: { user: authUser }, error: userError } = await supabase.auth.getUser()
+        console.log('getUser result:', { 
+          hasUser: !!authUser, 
+          userId: authUser?.id,
+          error: userError?.message 
+        })
         
-        // We have a user, fetch their data
-        if (!user || user.id !== authUser.id) {
+        if (authUser) {
+          console.log('User found via getUser:', authUser.id)
           await loadUserData(supabase, authUser.id)
-        } else {
-          loadStats(user)
+          return
         }
+        
+        console.error('No authenticated user found')
+        router.push('/login')
+        
       } catch (error) {
-        console.error('Auth check error:', error)
-        // Only redirect on actual errors, not just missing session
-        if (error instanceof Error && error.message.includes('JWT')) {
-          router.push('/login')
-        } else {
-          // For other errors, try to continue
-          console.log('Non-critical auth error, continuing...')
-          setLoading(false)
-        }
+        console.error('=== DASHBOARD AUTH ERROR ===', error)
+        router.push('/login')
       }
     }
     
     const loadUserData = async (supabase: ReturnType<typeof createClient>, userId: string) => {
+      console.log('Loading user data for:', userId)
+      
       const { data: userDataArray, error: userError } = await supabase
         .from('users')
         .select('*, agencies(*)')
         .eq('id', userId)
       
-      if (userError || !userDataArray || userDataArray.length === 0) {
+      if (userError) {
         console.error('Failed to load user data:', userError)
+        router.push('/login')
+        return
+      }
+      
+      if (!userDataArray || userDataArray.length === 0) {
+        console.error('No user data found')
         router.push('/login')
         return
       }
@@ -112,6 +93,8 @@ export default function DashboardPage() {
         ? userData.agencies[0] 
         : userData.agencies
       setAgency(agencyData)
+      
+      console.log('User data loaded, loading stats...')
       loadStats(userData)
     }
     
@@ -120,7 +103,10 @@ export default function DashboardPage() {
   }, [])
 
   const loadStats = async (currentUser = user) => {
-    if (!currentUser) return
+    if (!currentUser) {
+      setLoading(false)
+      return
+    }
     
     try {
       const supabase = createClient()
@@ -148,7 +134,7 @@ export default function DashboardPage() {
         packages_by_status: packagesByStatus,
         total_clients: clients?.length || 0,
         total_revenue: totalRevenue,
-        revenue_this_month: totalRevenue, // Simplified for now
+        revenue_this_month: totalRevenue,
       })
     } catch (error) {
       console.error('Error loading stats:', error)

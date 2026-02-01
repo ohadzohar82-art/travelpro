@@ -22,64 +22,65 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
+      console.log('=== LOGIN START ===')
       const supabase = createClient()
       
-      // Sign in
+      console.log('Calling signInWithPassword...')
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
-      if (authError) throw authError
-      if (!authData.user) throw new Error('Login failed - no user returned')
+      console.log('Sign in result:', { hasUser: !!authData?.user, error: authError?.message })
 
-      // Verify session exists (signInWithPassword should set it automatically)
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      if (authError) {
+        console.error('Auth error:', authError)
+        throw authError
+      }
       
-      if (sessionError || !session || !session.user) {
-        // Session might not be immediately available, wait a bit
-        await new Promise(resolve => setTimeout(resolve, 200))
-        const { data: { session: retrySession } } = await supabase.auth.getSession()
-        
-        if (!retrySession || !retrySession.user) {
-          console.warn('Session not immediately available, but continuing with redirect')
-        }
+      if (!authData?.user) {
+        console.error('No user returned')
+        throw new Error('Login failed - no user returned')
       }
 
+      console.log('User authenticated:', authData.user.id)
+
+      // Get session immediately
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      console.log('Session check:', { hasSession: !!session, hasUser: !!session?.user, error: sessionError?.message })
+
       // Fetch user and agency data
+      console.log('Fetching user data...')
       const { data: userDataArray, error: userError } = await supabase
         .from('users')
         .select('*, agencies(*)')
         .eq('id', authData.user.id)
 
-      if (userError) throw userError
+      if (userError) {
+        console.error('User data error:', userError)
+        throw userError
+      }
       
       if (!userDataArray || userDataArray.length === 0) {
+        console.error('No user data found')
         throw new Error('User record not found. Please sign up first.')
       }
 
       const userData = userDataArray[0]
       setUser(userData)
-      // Handle agencies - it might be an array or object
       const agency = Array.isArray(userData.agencies) 
         ? userData.agencies[0] 
         : userData.agencies
       setAgency(agency)
 
+      console.log('User data loaded, redirecting...')
       toast.success('התחברת בהצלחה!')
       
-      // Force redirect - ALWAYS redirect after successful login
-      console.log('Login successful, redirecting to /app')
-      // Use both methods to ensure redirect happens
+      // Simple, direct redirect
       window.location.href = '/app'
-      // Fallback in case first one doesn't work
-      setTimeout(() => {
-        if (window.location.pathname !== '/app') {
-          window.location.replace('/app')
-        }
-      }, 100)
+      
     } catch (error: any) {
-      console.error('Login error:', error)
+      console.error('=== LOGIN ERROR ===', error)
       toast.error(error.message || 'שגיאה בהתחברות')
       setLoading(false)
     }
