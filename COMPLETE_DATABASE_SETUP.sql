@@ -174,7 +174,7 @@ CREATE TABLE IF NOT EXISTS packages (
   confirmed_at TIMESTAMPTZ,
   created_by UUID REFERENCES users(id),
   duplicated_from UUID REFERENCES packages(id),
-  template_id UUID REFERENCES templates(id),
+  template_id UUID,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
@@ -237,6 +237,11 @@ CREATE TABLE IF NOT EXISTS templates (
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
+
+-- Add foreign key constraint for template_id in packages (after templates table exists)
+ALTER TABLE packages 
+  ADD CONSTRAINT fk_packages_template_id 
+  FOREIGN KEY (template_id) REFERENCES templates(id);
 
 -- Activity log table
 CREATE TABLE IF NOT EXISTS activity_log (
