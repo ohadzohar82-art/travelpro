@@ -24,10 +24,31 @@ export default function NewPackagePage() {
     setLoading(true)
     try {
       const supabase = createClient()
+      
+      // Get user from session if not in store
+      let currentUser = user
+      if (!currentUser) {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user) {
+          const { data: userDataArray } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single()
+          if (userDataArray) {
+            currentUser = userDataArray
+          }
+        }
+      }
+      
+      if (!currentUser?.agency_id) {
+        throw new Error('לא נמצא agency_id. אנא התחבר מחדש.')
+      }
+      
       const { data, error } = await supabase
         .from('packages')
         .insert({
-          agency_id: user?.agency_id,
+          agency_id: currentUser.agency_id,
           title,
           status: 'draft',
           currency: 'USD',
@@ -38,14 +59,19 @@ export default function NewPackagePage() {
         })
         .select()
 
-      if (error) throw error
+      if (error) {
+        console.error('Package creation error:', error)
+        throw error
+      }
+      
       if (!data || data.length === 0) {
-        throw new Error('Failed to create package')
+        throw new Error('Failed to create package - no data returned')
       }
 
       toast.success('חבילה נוצרה בהצלחה!')
       router.push(`/app/packages/${data[0].id}`)
     } catch (error: any) {
+      console.error('Error creating package:', error)
       toast.error(error.message || 'שגיאה ביצירת חבילה')
     } finally {
       setLoading(false)
