@@ -25,6 +25,7 @@ export default function PackagesPage() {
     if (user) {
       loadPackages()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, statusFilter])
 
   const loadPackages = async () => {

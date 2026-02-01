@@ -41,7 +41,7 @@ export function PriceSummary({ items, currency }: PriceSummaryProps) {
           ))}
         </div>
         <div className="border-t pt-4 flex justify-between font-bold text-lg">
-          <span>סה"כ</span>
+          <span>סה&quot;כ</span>
           <span>
             {new Intl.NumberFormat('he-IL', {
               style: 'currency',

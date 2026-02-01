@@ -32,6 +32,7 @@ export function PackageEditor({ packageId }: { packageId: string }) {
     if (user && packageId) {
       loadPackage()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, packageId])
 
   const loadPackage = async () => {

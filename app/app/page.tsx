@@ -26,6 +26,7 @@ export default function DashboardPage() {
     }
 
     loadStats()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
 
   const loadStats = async () => {
@@ -82,7 +83,7 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">סה"כ חבילות</CardTitle>
+            <CardTitle className="text-sm font-medium">סה&quot;כ חבילות</CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -104,7 +105,7 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">סה"כ הכנסות</CardTitle>
+            <CardTitle className="text-sm font-medium">סה&quot;כ הכנסות</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
