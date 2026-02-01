@@ -21,58 +21,61 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const supabase = createClient()
-      
-      // Wait a bit for cookies to be set after login redirect
-      await new Promise(resolve => setTimeout(resolve, 100))
-      
-      // Check authentication with retry
-      let authUser = null
-      let retries = 3
-      
-      while (retries > 0 && !authUser) {
-        const { data: { user }, error: authError } = await supabase.auth.getUser()
+      try {
+        const supabase = createClient()
         
-        if (user) {
-          authUser = user
-          break
+        // First check session (faster, uses cookies)
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+        
+        if (sessionError || !session || !session.user) {
+          // If no session, try getUser (might have token in memory)
+          const { data: { user: authUser }, error: userError } = await supabase.auth.getUser()
+          
+          if (userError || !authUser) {
+            console.log('No authenticated user found, redirecting to login')
+            router.push('/login')
+            return
+          }
+          
+          // We have a user, fetch their data
+          await loadUserData(supabase, authUser.id)
+          return
         }
         
-        if (authError && retries > 1) {
-          // Wait before retry
-          await new Promise(resolve => setTimeout(resolve, 200))
-        }
+        // We have a session, use it
+        const authUser = session.user
         
-        retries--
+        // Fetch user data if not in store or ID doesn't match
+        if (!user || user.id !== authUser.id) {
+          await loadUserData(supabase, authUser.id)
+        } else {
+          loadStats(user)
+        }
+      } catch (error) {
+        console.error('Auth check error:', error)
+        router.push('/login')
       }
+    }
+    
+    const loadUserData = async (supabase: ReturnType<typeof createClient>, userId: string) => {
+      const { data: userDataArray, error: userError } = await supabase
+        .from('users')
+        .select('*, agencies(*)')
+        .eq('id', userId)
       
-      if (!authUser) {
+      if (userError || !userDataArray || userDataArray.length === 0) {
+        console.error('Failed to load user data:', userError)
         router.push('/login')
         return
       }
       
-      // Fetch user data if not in store or ID doesn't match
-      if (!user || user.id !== authUser.id) {
-        const { data: userDataArray, error: userError } = await supabase
-          .from('users')
-          .select('*, agencies(*)')
-          .eq('id', authUser.id)
-        
-        if (userError || !userDataArray || userDataArray.length === 0) {
-          router.push('/login')
-          return
-        }
-        
-        const userData = userDataArray[0]
-        setUser(userData)
-        const agencyData = Array.isArray(userData.agencies) 
-          ? userData.agencies[0] 
-          : userData.agencies
-        setAgency(agencyData)
-        loadStats(userData)
-      } else {
-        loadStats(user)
-      }
+      const userData = userDataArray[0]
+      setUser(userData)
+      const agencyData = Array.isArray(userData.agencies) 
+        ? userData.agencies[0] 
+        : userData.agencies
+      setAgency(agencyData)
+      loadStats(userData)
     }
     
     checkAuth()

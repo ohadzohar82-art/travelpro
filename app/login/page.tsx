@@ -23,12 +23,37 @@ export default function LoginPage() {
 
     try {
       const supabase = createClient()
+      
+      // Sign in
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
       if (authError) throw authError
+      if (!authData.user) throw new Error('Login failed - no user returned')
+
+      // CRITICAL: Wait for session to be established and verify it exists
+      let sessionVerified = false
+      let attempts = 0
+      const maxAttempts = 10
+      
+      while (!sessionVerified && attempts < maxAttempts) {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+        
+        if (session && session.user && !sessionError) {
+          sessionVerified = true
+          break
+        }
+        
+        // Wait 100ms before retry
+        await new Promise(resolve => setTimeout(resolve, 100))
+        attempts++
+      }
+
+      if (!sessionVerified) {
+        throw new Error('Session could not be established. Please try again.')
+      }
 
       // Fetch user and agency data
       const { data: userDataArray, error: userError } = await supabase
@@ -50,11 +75,12 @@ export default function LoginPage() {
         : userData.agencies
       setAgency(agency)
 
-      // Redirect immediately BEFORE toast (to ensure it happens)
-      window.location.replace('/app')
-      
-      // Show toast after redirect is initiated
       toast.success('התחברת בהצלחה!')
+      
+      // Redirect after everything is confirmed
+      setTimeout(() => {
+        window.location.href = '/app'
+      }, 300)
     } catch (error: any) {
       console.error('Login error:', error)
       toast.error(error.message || 'שגיאה בהתחברות')
