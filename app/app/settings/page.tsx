@@ -267,15 +267,44 @@ export default function SettingsPage() {
             <div>
               <h3 className="text-lg font-semibold mb-4">מילוי אוטומטי של מדינות ויעדים</h3>
               <p className="text-sm text-gray-600 mb-4">
-                כדי למלא את מסד הנתונים במדינות ויעדים נפוצים, הרץ את סקריפט ה-SQL בקובץ:
+                כדי למלא את מסד הנתונים במדינות ויעדים נפוצים, עקוב אחר ההוראות:
               </p>
-              <code className="block bg-gray-100 p-3 rounded-lg text-sm mb-4">
-                scripts/populate-countries-destinations.sql
-              </code>
+              
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <p className="text-sm font-semibold text-blue-900 mb-2">📋 הוראות מפורטות:</p>
+                <p className="text-sm text-blue-800 mb-2">
+                  פתח את הקובץ <code className="bg-blue-100 px-2 py-1 rounded">HOW_TO_RUN_SQL_SCRIPT.md</code> 
+                  לקבלת הוראות מפורטות בעברית.
+                </p>
+              </div>
+
+              <div className="space-y-3 mb-4">
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                  <p className="text-sm font-semibold text-gray-900 mb-1">שלב 1: מצא את מזהה הסוכנות</p>
+                  <code className="block bg-white p-2 rounded text-xs mt-2">
+                    SELECT id FROM agencies LIMIT 1;
+                  </code>
+                  <p className="text-xs text-gray-600 mt-2">הרץ את זה ב-Supabase SQL Editor והעתק את המזהה</p>
+                </div>
+
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                  <p className="text-sm font-semibold text-gray-900 mb-1">שלב 2: פתח את קובץ ה-SQL</p>
+                  <code className="block bg-white p-2 rounded text-xs mt-2">
+                    scripts/populate-countries-destinations-EASY.sql
+                  </code>
+                  <p className="text-xs text-gray-600 mt-2">חפש והחלף את כל המופעים של <code>YOUR_AGENCY_ID</code> במזהה שלך</p>
+                </div>
+
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                  <p className="text-sm font-semibold text-gray-900 mb-1">שלב 3: הרץ את הסקריפט</p>
+                  <p className="text-xs text-gray-600">העתק את כל הקוד והדבק ב-Supabase SQL Editor, לחץ Run</p>
+                </div>
+              </div>
+
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                 <p className="text-sm text-yellow-800">
-                  <strong>שימו לב:</strong> לפני הרצת הסקריפט, החלף את &apos;YOUR_AGENCY_ID&apos; במזהה הסוכנות שלך.
-                  תוכל למצוא את המזהה על ידי הרצת: <code>SELECT id FROM agencies LIMIT 1;</code>
+                  <strong>⚠️ חשוב:</strong> לפני הרצת הסקריפט, ודא שרצת קודם את <code>COMPLETE_DATABASE_SETUP.sql</code> 
+                  כדי ליצור את הטבלאות.
                 </p>
               </div>
             </div>
