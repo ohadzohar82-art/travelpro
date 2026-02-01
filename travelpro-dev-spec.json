@@ -1,0 +1,1064 @@
+{
+  "project": {
+    "name": "TravelPro Builder",
+    "version": "1.0.0",
+    "description": "Professional travel package management SaaS for travel agencies",
+    "type": "saas",
+    "languages": ["he", "en"],
+    "default_language": "he",
+    "default_direction": "rtl"
+  },
+
+  "stack": {
+    "frontend": {
+      "framework": "Next.js 14",
+      "language": "TypeScript",
+      "styling": "Tailwind CSS",
+      "state_management": "Zustand",
+      "data_fetching": "@tanstack/react-query",
+      "drag_and_drop": "@dnd-kit/core + @dnd-kit/sortable",
+      "icons": "lucide-react",
+      "pdf": "react-pdf + @react-pdf/renderer",
+      "i18n": "next-intl",
+      "forms": "react-hook-form + zod",
+      "notifications": "sonner",
+      "date": "date-fns"
+    },
+    "backend": {
+      "framework": "Next.js API Routes",
+      "database": "Supabase (PostgreSQL)",
+      "auth": "Supabase Auth",
+      "storage": "Supabase Storage",
+      "email": "Resend",
+      "hosting": "Vercel"
+    },
+    "dev_tools": {
+      "package_manager": "npm",
+      "linting": "ESLint",
+      "formatting": "Prettier",
+      "git": true
+    }
+  },
+
+  "environment_variables": {
+    "NEXT_PUBLIC_SUPABASE_URL": "https://xxxxx.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJ...",
+    "SUPABASE_SERVICE_ROLE_KEY": "eyJ...",
+    "RESEND_API_KEY": "re_...",
+    "NEXT_PUBLIC_APP_URL": "https://travelpro.app",
+    "NEXT_PUBLIC_DEFAULT_LOCALE": "he"
+  },
+
+  "database": {
+    "provider": "supabase",
+    "tables": {
+      "agencies": {
+        "description": "Travel agencies (multi-tenant root)",
+        "columns": {
+          "id": { "type": "uuid", "primary": true, "default": "gen_random_uuid()" },
+          "name": { "type": "text", "required": true },
+          "slug": { "type": "text", "unique": true, "required": true },
+          "logo_url": { "type": "text", "nullable": true },
+          "logo_dark_url": { "type": "text", "nullable": true },
+          "primary_color": { "type": "text", "default": "#2563eb" },
+          "secondary_color": { "type": "text", "default": "#059669" },
+          "contact_email": { "type": "text", "nullable": true },
+          "contact_phone": { "type": "text", "nullable": true },
+          "contact_whatsapp": { "type": "text", "nullable": true },
+          "address": { "type": "text", "nullable": true },
+          "website": { "type": "text", "nullable": true },
+          "default_currency": { "type": "text", "default": "USD" },
+          "default_language": { "type": "text", "default": "he" },
+          "terms_text": { "type": "text", "nullable": true },
+          "email_signature": { "type": "text", "nullable": true },
+          "pdf_footer_text": { "type": "text", "nullable": true },
+          "subscription_plan": { "type": "text", "default": "basic", "enum": ["basic", "pro", "enterprise"] },
+          "subscription_status": { "type": "text", "default": "active", "enum": ["active", "trial", "expired", "cancelled"] },
+          "trial_ends_at": { "type": "timestamptz", "nullable": true },
+          "created_at": { "type": "timestamptz", "default": "now()" },
+          "updated_at": { "type": "timestamptz", "default": "now()" }
+        },
+        "indexes": ["slug"],
+        "rls": {
+          "select": "agency_id = auth.jwt() -> agency_id",
+          "insert": "authenticated",
+          "update": "agency_id = auth.jwt() -> agency_id AND role IN ('admin', 'owner')",
+          "delete": "agency_id = auth.jwt() -> agency_id AND role = 'owner'"
+        }
+      },
+
+      "users": {
+        "description": "Users linked to agencies with roles",
+        "columns": {
+          "id": { "type": "uuid", "primary": true, "references": "auth.users(id)" },
+          "agency_id": { "type": "uuid", "required": true, "references": "agencies(id)" },
+          "full_name": { "type": "text", "required": true },
+          "email": { "type": "text", "required": true },
+          "phone": { "type": "text", "nullable": true },
+          "role": { "type": "text", "default": "agent", "enum": ["owner", "admin", "agent", "viewer"] },
+          "avatar_url": { "type": "text", "nullable": true },
+          "is_active": { "type": "boolean", "default": true },
+          "last_login_at": { "type": "timestamptz", "nullable": true },
+          "created_at": { "type": "timestamptz", "default": "now()" },
+          "updated_at": { "type": "timestamptz", "default": "now()" }
+        },
+        "indexes": ["agency_id", "email"],
+        "rls": {
+          "select": "agency_id = current_user_agency_id()",
+          "update": "id = auth.uid() OR (agency_id = current_user_agency_id() AND current_user_role() IN ('admin', 'owner'))"
+        }
+      },
+
+      "countries": {
+        "description": "Countries available for packages",
+        "columns": {
+          "id": { "type": "uuid", "primary": true, "default": "gen_random_uuid()" },
+          "agency_id": { "type": "uuid", "required": true, "references": "agencies(id)" },
+          "name": { "type": "text", "required": true },
+          "name_en": { "type": "text", "nullable": true },
+          "code": { "type": "text", "required": true, "comment": "ISO 3166-1 alpha-2" },
+          "currency": { "type": "text", "required": true },
+          "currency_symbol": { "type": "text", "nullable": true },
+          "language": { "type": "text", "nullable": true },
+          "timezone": { "type": "text", "nullable": true },
+          "visa_info": { "type": "text", "nullable": true },
+          "best_season": { "type": "text", "nullable": true },
+          "description": { "type": "text", "nullable": true },
+          "image_url": { "type": "text", "nullable": true },
+          "is_active": { "type": "boolean", "default": true },
+          "sort_order": { "type": "integer", "default": 0 },
+          "created_at": { "type": "timestamptz", "default": "now()" },
+          "updated_at": { "type": "timestamptz", "default": "now()" }
+        },
+        "indexes": ["agency_id", "code"],
+        "rls": {
+          "select": "agency_id = current_user_agency_id()",
+          "insert": "agency_id = current_user_agency_id() AND current_user_role() IN ('admin', 'owner', 'agent')",
+          "update": "agency_id = current_user_agency_id() AND current_user_role() IN ('admin', 'owner', 'agent')",
+          "delete": "agency_id = current_user_agency_id() AND current_user_role() IN ('admin', 'owner')"
+        }
+      },
+
+      "destinations": {
+        "description": "Destinations within countries",
+        "columns": {
+          "id": { "type": "uuid", "primary": true, "default": "gen_random_uuid()" },
+          "agency_id": { "type": "uuid", "required": true, "references": "agencies(id)" },
+          "country_id": { "type": "uuid", "required": true, "references": "countries(id)" },
+          "name": { "type": "text", "required": true },
+          "name_en": { "type": "text", "nullable": true },
+          "region": { "type": "text", "nullable": true },
+          "airport_code": { "type": "text", "nullable": true },
+          "latitude": { "type": "decimal", "nullable": true },
+          "longitude": { "type": "decimal", "nullable": true },
+          "highlights": { "type": "jsonb", "default": "[]", "comment": "array of strings" },
+          "description": { "type": "text", "nullable": true },
+          "image_url": { "type": "text", "nullable": true },
+          "gallery": { "type": "jsonb", "default": "[]", "comment": "array of image URLs" },
+          "is_active": { "type": "boolean", "default": true },
+          "sort_order": { "type": "integer", "default": 0 },
+          "created_at": { "type": "timestamptz", "default": "now()" },
+          "updated_at": { "type": "timestamptz", "default": "now()" }
+        },
+        "indexes": ["agency_id", "country_id"],
+        "rls": {
+          "select": "agency_id = current_user_agency_id()",
+          "insert": "agency_id = current_user_agency_id()",
+          "update": "agency_id = current_user_agency_id()",
+          "delete": "agency_id = current_user_agency_id() AND current_user_role() IN ('admin', 'owner')"
+        }
+      },
+
+      "clients": {
+        "description": "Agency clients/customers",
+        "columns": {
+          "id": { "type": "uuid", "primary": true, "default": "gen_random_uuid()" },
+          "agency_id": { "type": "uuid", "required": true, "references": "agencies(id)" },
+          "name": { "type": "text", "required": true },
+          "email": { "type": "text", "nullable": true },
+          "phone": { "type": "text", "nullable": true },
+          "whatsapp": { "type": "text", "nullable": true },
+          "address": { "type": "text", "nullable": true },
+          "notes": { "type": "text", "nullable": true },
+          "preferences": { "type": "jsonb", "default": "{}", "comment": "travel preferences" },
+          "tags": { "type": "jsonb", "default": "[]" },
+          "is_active": { "type": "boolean", "default": true },
+          "created_by": { "type": "uuid", "references": "users(id)", "nullable": true },
+          "created_at": { "type": "timestamptz", "default": "now()" },
+          "updated_at": { "type": "timestamptz", "default": "now()" }
+        },
+        "indexes": ["agency_id", "email", "phone"],
+        "rls": {
+          "select": "agency_id = current_user_agency_id()",
+          "insert": "agency_id = current_user_agency_id()",
+          "update": "agency_id = current_user_agency_id()",
+          "delete": "agency_id = current_user_agency_id() AND current_user_role() IN ('admin', 'owner')"
+        }
+      },
+
+      "packages": {
+        "description": "Travel packages - the main entity",
+        "columns": {
+          "id": { "type": "uuid", "primary": true, "default": "gen_random_uuid()" },
+          "agency_id": { "type": "uuid", "required": true, "references": "agencies(id)" },
+          "title": { "type": "text", "required": true },
+          "description": { "type": "text", "nullable": true },
+          "country_id": { "type": "uuid", "references": "countries(id)", "nullable": true },
+          "client_id": { "type": "uuid", "references": "clients(id)", "nullable": true },
+          "status": { "type": "text", "default": "draft", "enum": ["draft", "sent", "confirmed", "cancelled"] },
+          "start_date": { "type": "date", "nullable": true },
+          "end_date": { "type": "date", "nullable": true },
+          "currency": { "type": "text", "default": "USD" },
+          "total_price": { "type": "decimal", "default": 0, "comment": "auto-calculated from items" },
+          "adults": { "type": "integer", "default": 2 },
+          "children": { "type": "integer", "default": 0 },
+          "infants": { "type": "integer", "default": 0 },
+          "client_name": { "type": "text", "nullable": true, "comment": "quick client name without client record" },
+          "client_email": { "type": "text", "nullable": true },
+          "client_phone": { "type": "text", "nullable": true },
+          "client_notes": { "type": "text", "nullable": true },
+          "internal_notes": { "type": "text", "nullable": true, "comment": "agent notes, not visible to client" },
+          "public_token": { "type": "text", "unique": true, "nullable": true, "comment": "for public viewing link" },
+          "public_expires_at": { "type": "timestamptz", "nullable": true },
+          "language": { "type": "text", "default": "he", "comment": "output language for client" },
+          "sent_at": { "type": "timestamptz", "nullable": true },
+          "confirmed_at": { "type": "timestamptz", "nullable": true },
+          "created_by": { "type": "uuid", "references": "users(id)", "nullable": true },
+          "duplicated_from": { "type": "uuid", "references": "packages(id)", "nullable": true },
+          "template_id": { "type": "uuid", "references": "templates(id)", "nullable": true },
+          "created_at": { "type": "timestamptz", "default": "now()" },
+          "updated_at": { "type": "timestamptz", "default": "now()" }
+        },
+        "indexes": ["agency_id", "status", "country_id", "client_id", "public_token", "created_by"],
+        "rls": {
+          "select": "agency_id = current_user_agency_id()",
+          "insert": "agency_id = current_user_agency_id()",
+          "update": "agency_id = current_user_agency_id()",
+          "delete": "agency_id = current_user_agency_id() AND current_user_role() IN ('admin', 'owner')"
+        }
+      },
+
+      "package_days": {
+        "description": "Days within a package",
+        "columns": {
+          "id": { "type": "uuid", "primary": true, "default": "gen_random_uuid()" },
+          "package_id": { "type": "uuid", "required": true, "references": "packages(id)", "on_delete": "CASCADE" },
+          "agency_id": { "type": "uuid", "required": true, "references": "agencies(id)" },
+          "day_number": { "type": "integer", "required": true },
+          "date": { "type": "date", "nullable": true },
+          "title": { "type": "text", "required": true },
+          "destination_id": { "type": "uuid", "references": "destinations(id)", "nullable": true },
+          "notes": { "type": "text", "nullable": true },
+          "created_at": { "type": "timestamptz", "default": "now()" },
+          "updated_at": { "type": "timestamptz", "default": "now()" }
+        },
+        "indexes": ["package_id", "agency_id"],
+        "constraints": {
+          "unique": ["package_id", "day_number"]
+        },
+        "rls": {
+          "select": "agency_id = current_user_agency_id()",
+          "insert": "agency_id = current_user_agency_id()",
+          "update": "agency_id = current_user_agency_id()",
+          "delete": "agency_id = current_user_agency_id()"
+        }
+      },
+
+      "package_items": {
+        "description": "Items within a day",
+        "columns": {
+          "id": { "type": "uuid", "primary": true, "default": "gen_random_uuid()" },
+          "day_id": { "type": "uuid", "required": true, "references": "package_days(id)", "on_delete": "CASCADE" },
+          "package_id": { "type": "uuid", "required": true, "references": "packages(id)", "on_delete": "CASCADE" },
+          "agency_id": { "type": "uuid", "required": true, "references": "agencies(id)" },
+          "type": { "type": "text", "required": true, "enum": ["flight", "accommodation", "transfer", "activity", "meal", "transition", "free_time", "custom"] },
+          "sort_order": { "type": "integer", "default": 0 },
+          "title": { "type": "text", "required": true },
+          "subtitle": { "type": "text", "nullable": true },
+          "description": { "type": "text", "nullable": true },
+          "time_start": { "type": "text", "nullable": true, "comment": "HH:MM format" },
+          "time_end": { "type": "text", "nullable": true },
+          "duration": { "type": "text", "nullable": true },
+          "price": { "type": "decimal", "default": 0 },
+          "price_per": { "type": "text", "default": "total", "enum": ["total", "person", "night", "unit"] },
+          "notes": { "type": "text", "nullable": true },
+          "data": { "type": "jsonb", "default": "{}", "comment": "type-specific extra fields" },
+          "image_url": { "type": "text", "nullable": true },
+          "is_included": { "type": "boolean", "default": true, "comment": "included in price or extra" },
+          "is_optional": { "type": "boolean", "default": false },
+          "created_at": { "type": "timestamptz", "default": "now()" },
+          "updated_at": { "type": "timestamptz", "default": "now()" }
+        },
+        "indexes": ["day_id", "package_id", "agency_id", "type"],
+        "rls": {
+          "select": "agency_id = current_user_agency_id()",
+          "insert": "agency_id = current_user_agency_id()",
+          "update": "agency_id = current_user_agency_id()",
+          "delete": "agency_id = current_user_agency_id()"
+        }
+      },
+
+      "templates": {
+        "description": "Reusable package templates",
+        "columns": {
+          "id": { "type": "uuid", "primary": true, "default": "gen_random_uuid()" },
+          "agency_id": { "type": "uuid", "required": true, "references": "agencies(id)" },
+          "name": { "type": "text", "required": true },
+          "description": { "type": "text", "nullable": true },
+          "country_id": { "type": "uuid", "references": "countries(id)", "nullable": true },
+          "duration_days": { "type": "integer", "nullable": true },
+          "base_price": { "type": "decimal", "default": 0 },
+          "currency": { "type": "text", "default": "USD" },
+          "template_data": { "type": "jsonb", "required": true, "comment": "full days + items structure" },
+          "image_url": { "type": "text", "nullable": true },
+          "is_active": { "type": "boolean", "default": true },
+          "usage_count": { "type": "integer", "default": 0 },
+          "created_by": { "type": "uuid", "references": "users(id)", "nullable": true },
+          "created_at": { "type": "timestamptz", "default": "now()" },
+          "updated_at": { "type": "timestamptz", "default": "now()" }
+        },
+        "indexes": ["agency_id", "country_id"],
+        "rls": {
+          "select": "agency_id = current_user_agency_id()",
+          "insert": "agency_id = current_user_agency_id()",
+          "update": "agency_id = current_user_agency_id()",
+          "delete": "agency_id = current_user_agency_id() AND current_user_role() IN ('admin', 'owner')"
+        }
+      },
+
+      "activity_log": {
+        "description": "Audit log for tracking actions",
+        "columns": {
+          "id": { "type": "uuid", "primary": true, "default": "gen_random_uuid()" },
+          "agency_id": { "type": "uuid", "required": true, "references": "agencies(id)" },
+          "user_id": { "type": "uuid", "references": "users(id)", "nullable": true },
+          "action": { "type": "text", "required": true, "enum": ["created", "updated", "deleted", "sent", "confirmed", "cancelled", "duplicated", "viewed", "downloaded"] },
+          "entity_type": { "type": "text", "required": true, "enum": ["package", "client", "country", "destination", "template"] },
+          "entity_id": { "type": "uuid", "required": true },
+          "metadata": { "type": "jsonb", "default": "{}" },
+          "created_at": { "type": "timestamptz", "default": "now()" }
+        },
+        "indexes": ["agency_id", "entity_type", "entity_id", "created_at"]
+      }
+    },
+
+    "functions": {
+      "current_user_agency_id": {
+        "description": "Get the agency_id of the current authenticated user",
+        "returns": "uuid",
+        "body": "SELECT agency_id FROM public.users WHERE id = auth.uid()"
+      },
+      "current_user_role": {
+        "description": "Get the role of the current authenticated user",
+        "returns": "text",
+        "body": "SELECT role FROM public.users WHERE id = auth.uid()"
+      },
+      "calculate_package_total": {
+        "description": "Recalculate and update package total price",
+        "params": { "p_package_id": "uuid" },
+        "returns": "decimal",
+        "trigger_on": "package_items INSERT/UPDATE/DELETE"
+      },
+      "generate_public_token": {
+        "description": "Generate unique public viewing token",
+        "returns": "text",
+        "body": "encode(gen_random_bytes(32), 'hex')"
+      }
+    },
+
+    "triggers": {
+      "update_package_total_on_item_change": {
+        "table": "package_items",
+        "events": ["INSERT", "UPDATE", "DELETE"],
+        "function": "calculate_package_total"
+      },
+      "set_updated_at": {
+        "tables": ["agencies", "users", "countries", "destinations", "clients", "packages", "package_days", "package_items", "templates"],
+        "events": ["UPDATE"],
+        "body": "NEW.updated_at = now()"
+      }
+    },
+
+    "storage_buckets": {
+      "logos": { "public": true, "max_size": "2MB", "allowed_types": ["image/png", "image/jpeg", "image/svg+xml"] },
+      "package-images": { "public": true, "max_size": "5MB", "allowed_types": ["image/png", "image/jpeg", "image/webp"] },
+      "destination-images": { "public": true, "max_size": "5MB", "allowed_types": ["image/png", "image/jpeg", "image/webp"] },
+      "generated-pdfs": { "public": false, "max_size": "20MB", "allowed_types": ["application/pdf"] }
+    }
+  },
+
+  "item_types": {
+    "flight": {
+      "icon": "✈️",
+      "label_he": "טיסה",
+      "label_en": "Flight",
+      "color": "#3B82F6",
+      "bg_class": "bg-blue-100 border-blue-300",
+      "fields": {
+        "airline": { "type": "text", "label_he": "חברת תעופה", "label_en": "Airline", "required": true },
+        "flight_number": { "type": "text", "label_he": "מספר טיסה", "label_en": "Flight Number" },
+        "from": { "type": "text", "label_he": "מוצא", "label_en": "From", "required": true },
+        "to": { "type": "text", "label_he": "יעד", "label_en": "To", "required": true },
+        "departure_time": { "type": "time", "label_he": "המראה", "label_en": "Departure" },
+        "arrival_time": { "type": "time", "label_he": "נחיתה", "label_en": "Arrival" },
+        "class": { "type": "select", "label_he": "מחלקה", "label_en": "Class", "options": ["economy", "premium_economy", "business", "first"] },
+        "baggage": { "type": "text", "label_he": "מזוודות", "label_en": "Baggage" },
+        "terminal": { "type": "text", "label_he": "טרמינל", "label_en": "Terminal" }
+      }
+    },
+    "accommodation": {
+      "icon": "🏨",
+      "label_he": "לינה",
+      "label_en": "Accommodation",
+      "color": "#8B5CF6",
+      "bg_class": "bg-purple-100 border-purple-300",
+      "fields": {
+        "hotel_name": { "type": "text", "label_he": "שם המלון", "label_en": "Hotel Name", "required": true },
+        "room_type": { "type": "text", "label_he": "סוג חדר", "label_en": "Room Type" },
+        "nights": { "type": "number", "label_he": "לילות", "label_en": "Nights", "required": true },
+        "check_in": { "type": "time", "label_he": "צ'ק-אין", "label_en": "Check-in" },
+        "check_out": { "type": "time", "label_he": "צ'ק-אאוט", "label_en": "Check-out" },
+        "meals": { "type": "select", "label_he": "ארוחות", "label_en": "Meals", "options": ["RO", "BB", "HB", "FB", "AI"] },
+        "stars": { "type": "select", "label_he": "כוכבים", "label_en": "Stars", "options": [1, 2, 3, 4, 5] },
+        "address": { "type": "text", "label_he": "כתובת", "label_en": "Address" },
+        "website": { "type": "url", "label_he": "אתר", "label_en": "Website" },
+        "confirmation_number": { "type": "text", "label_he": "מספר אישור", "label_en": "Confirmation #" }
+      }
+    },
+    "transfer": {
+      "icon": "🚗",
+      "label_he": "העברה",
+      "label_en": "Transfer",
+      "color": "#F59E0B",
+      "bg_class": "bg-amber-100 border-amber-300",
+      "fields": {
+        "vehicle_type": { "type": "select", "label_he": "סוג רכב", "label_en": "Vehicle", "options": ["private_car", "minibus", "bus", "speedboat", "taxi", "train"], "required": true },
+        "from": { "type": "text", "label_he": "מוצא", "label_en": "From", "required": true },
+        "to": { "type": "text", "label_he": "יעד", "label_en": "To", "required": true },
+        "duration": { "type": "text", "label_he": "משך נסיעה", "label_en": "Duration" },
+        "pickup_time": { "type": "time", "label_he": "שעת איסוף", "label_en": "Pickup Time" },
+        "pickup_location": { "type": "text", "label_he": "נקודת איסוף", "label_en": "Pickup Location" },
+        "driver_info": { "type": "text", "label_he": "פרטי נהג", "label_en": "Driver Info" }
+      }
+    },
+    "activity": {
+      "icon": "🎯",
+      "label_he": "פעילות",
+      "label_en": "Activity",
+      "color": "#10B981",
+      "bg_class": "bg-green-100 border-green-300",
+      "fields": {
+        "name": { "type": "text", "label_he": "שם הפעילות", "label_en": "Activity Name", "required": true },
+        "description": { "type": "textarea", "label_he": "תיאור", "label_en": "Description" },
+        "duration": { "type": "text", "label_he": "משך", "label_en": "Duration" },
+        "time": { "type": "time", "label_he": "שעה", "label_en": "Time" },
+        "meeting_point": { "type": "text", "label_he": "נקודת מפגש", "label_en": "Meeting Point" },
+        "includes": { "type": "text", "label_he": "כולל", "label_en": "Includes" },
+        "what_to_bring": { "type": "text", "label_he": "מה להביא", "label_en": "What to Bring" },
+        "difficulty": { "type": "select", "label_he": "רמת קושי", "label_en": "Difficulty", "options": ["easy", "moderate", "hard"] },
+        "guide_language": { "type": "text", "label_he": "שפת מדריך", "label_en": "Guide Language" }
+      }
+    },
+    "meal": {
+      "icon": "🍽️",
+      "label_he": "ארוחה",
+      "label_en": "Meal",
+      "color": "#F97316",
+      "bg_class": "bg-orange-100 border-orange-300",
+      "fields": {
+        "restaurant": { "type": "text", "label_he": "מסעדה", "label_en": "Restaurant", "required": true },
+        "meal_type": { "type": "select", "label_he": "סוג ארוחה", "label_en": "Meal Type", "options": ["breakfast", "lunch", "dinner", "snack"], "required": true },
+        "cuisine": { "type": "text", "label_he": "סוג מטבח", "label_en": "Cuisine" },
+        "reservation_time": { "type": "time", "label_he": "שעת הזמנה", "label_en": "Reservation Time" },
+        "address": { "type": "text", "label_he": "כתובת", "label_en": "Address" },
+        "dietary_notes": { "type": "text", "label_he": "הערות תזונה", "label_en": "Dietary Notes" },
+        "dress_code": { "type": "text", "label_he": "דרס קוד", "label_en": "Dress Code" }
+      }
+    },
+    "transition": {
+      "icon": "🔄",
+      "label_he": "מעבר בין יעדים",
+      "label_en": "Transition",
+      "color": "#EC4899",
+      "bg_class": "bg-pink-100 border-pink-300",
+      "fields": {
+        "from_destination": { "type": "text", "label_he": "מיעד", "label_en": "From", "required": true },
+        "to_destination": { "type": "text", "label_he": "ליעד", "label_en": "To", "required": true },
+        "method": { "type": "select", "label_he": "אמצעי", "label_en": "Method", "options": ["flight", "train", "bus", "car", "boat", "ferry"], "required": true },
+        "duration": { "type": "text", "label_he": "משך", "label_en": "Duration" },
+        "departure_time": { "type": "time", "label_he": "יציאה", "label_en": "Departure" },
+        "arrival_time": { "type": "time", "label_he": "הגעה", "label_en": "Arrival" },
+        "carrier": { "type": "text", "label_he": "מפעיל", "label_en": "Carrier" },
+        "booking_ref": { "type": "text", "label_he": "מספר הזמנה", "label_en": "Booking Ref" }
+      }
+    },
+    "free_time": {
+      "icon": "⏰",
+      "label_he": "זמן חופשי",
+      "label_en": "Free Time",
+      "color": "#6B7280",
+      "bg_class": "bg-gray-100 border-gray-300",
+      "fields": {
+        "suggestions": { "type": "textarea", "label_he": "המלצות", "label_en": "Suggestions" },
+        "duration": { "type": "text", "label_he": "משך", "label_en": "Duration" },
+        "area": { "type": "text", "label_he": "אזור", "label_en": "Area" }
+      }
+    },
+    "custom": {
+      "icon": "⭐",
+      "label_he": "פריט מותאם",
+      "label_en": "Custom Item",
+      "color": "#6366F1",
+      "bg_class": "bg-indigo-100 border-indigo-300",
+      "fields": {
+        "custom_title": { "type": "text", "label_he": "כותרת", "label_en": "Title", "required": true },
+        "custom_description": { "type": "textarea", "label_he": "תיאור", "label_en": "Description" },
+        "custom_icon": { "type": "text", "label_he": "אייקון", "label_en": "Icon" }
+      }
+    }
+  },
+
+  "meal_plan_labels": {
+    "RO": { "he": "ללא ארוחות", "en": "Room Only" },
+    "BB": { "he": "ארוחת בוקר", "en": "Bed & Breakfast" },
+    "HB": { "he": "חצי פנסיון", "en": "Half Board" },
+    "FB": { "he": "פנסיון מלא", "en": "Full Board" },
+    "AI": { "he": "הכל כלול", "en": "All Inclusive" }
+  },
+
+  "api_routes": {
+    "auth": {
+      "POST /api/auth/signup": { "body": ["email", "password", "full_name", "agency_name"], "description": "Register new agency + user" },
+      "POST /api/auth/login": { "body": ["email", "password"], "description": "Login" },
+      "POST /api/auth/logout": { "description": "Logout" },
+      "POST /api/auth/forgot-password": { "body": ["email"] },
+      "GET /api/auth/me": { "description": "Current user + agency info" }
+    },
+    "countries": {
+      "GET /api/countries": { "query": ["search", "is_active"], "response": "Country[]" },
+      "GET /api/countries/:id": { "response": "Country" },
+      "POST /api/countries": { "body": "CountryInput", "roles": ["admin", "owner", "agent"] },
+      "PUT /api/countries/:id": { "body": "CountryInput", "roles": ["admin", "owner", "agent"] },
+      "DELETE /api/countries/:id": { "roles": ["admin", "owner"] }
+    },
+    "destinations": {
+      "GET /api/destinations": { "query": ["country_id", "search", "is_active"], "response": "Destination[]" },
+      "GET /api/destinations/:id": { "response": "Destination" },
+      "POST /api/destinations": { "body": "DestinationInput" },
+      "PUT /api/destinations/:id": { "body": "DestinationInput" },
+      "DELETE /api/destinations/:id": { "roles": ["admin", "owner"] }
+    },
+    "clients": {
+      "GET /api/clients": { "query": ["search", "page", "limit"], "response": "PaginatedResponse<Client>" },
+      "GET /api/clients/:id": { "response": "Client with packages" },
+      "POST /api/clients": { "body": "ClientInput" },
+      "PUT /api/clients/:id": { "body": "ClientInput" },
+      "DELETE /api/clients/:id": { "roles": ["admin", "owner"] }
+    },
+    "packages": {
+      "GET /api/packages": { "query": ["status", "country_id", "client_id", "search", "page", "limit", "sort"], "response": "PaginatedResponse<Package>" },
+      "GET /api/packages/:id": { "response": "Package with days, items, client, country" },
+      "POST /api/packages": { "body": "PackageInput", "response": "Package" },
+      "PUT /api/packages/:id": { "body": "PackageInput" },
+      "DELETE /api/packages/:id": { "roles": ["admin", "owner"] },
+      "POST /api/packages/:id/duplicate": { "response": "Package", "description": "Clone package with all days and items" },
+      "POST /api/packages/:id/generate-link": { "response": "{ token, url }" },
+      "POST /api/packages/:id/save-full": { "body": "{ package, days, items }", "description": "Atomic save of entire package structure" }
+    },
+    "package_days": {
+      "POST /api/packages/:id/days": { "body": "DayInput" },
+      "PUT /api/packages/:id/days/:dayId": { "body": "DayInput" },
+      "DELETE /api/packages/:id/days/:dayId": {},
+      "PUT /api/packages/:id/days/reorder": { "body": "{ day_ids: string[] }" }
+    },
+    "package_items": {
+      "POST /api/packages/:id/days/:dayId/items": { "body": "ItemInput" },
+      "PUT /api/packages/:id/items/:itemId": { "body": "ItemInput" },
+      "DELETE /api/packages/:id/items/:itemId": {},
+      "PUT /api/packages/:id/items/move": { "body": "{ item_id, target_day_id, sort_order }" },
+      "PUT /api/packages/:id/days/:dayId/items/reorder": { "body": "{ item_ids: string[] }" }
+    },
+    "output": {
+      "GET /api/packages/:id/pdf": { "response": "PDF file", "description": "Generate and download PDF" },
+      "POST /api/packages/:id/send-email": { "body": ["to_email", "subject", "message", "attach_pdf"] },
+      "GET /api/packages/:id/whatsapp-link": { "query": ["phone"], "response": "{ url }" }
+    },
+    "public": {
+      "GET /api/public/package/:token": { "description": "Public package view - no auth required", "response": "Package with agency branding" }
+    },
+    "templates": {
+      "GET /api/templates": { "query": ["country_id", "search"] },
+      "POST /api/templates": { "body": "TemplateInput" },
+      "POST /api/templates/from-package/:packageId": { "description": "Create template from existing package" },
+      "POST /api/templates/:id/apply": { "description": "Create new package from template" },
+      "DELETE /api/templates/:id": {}
+    },
+    "settings": {
+      "GET /api/settings": { "description": "Agency settings", "response": "Agency" },
+      "PUT /api/settings": { "body": "AgencySettingsInput", "roles": ["admin", "owner"] },
+      "POST /api/settings/upload-logo": { "body": "FormData (file)", "roles": ["admin", "owner"] }
+    },
+    "stats": {
+      "GET /api/stats/dashboard": {
+        "response": {
+          "total_packages": "number",
+          "packages_by_status": "{ draft, sent, confirmed, cancelled }",
+          "total_clients": "number",
+          "total_revenue": "number",
+          "revenue_this_month": "number",
+          "recent_packages": "Package[]",
+          "popular_countries": "{ country, count }[]"
+        }
+      }
+    }
+  },
+
+  "pages": {
+    "public": {
+      "/": { "component": "LandingPage", "description": "Marketing landing page" },
+      "/login": { "component": "LoginPage" },
+      "/signup": { "component": "SignupPage" },
+      "/forgot-password": { "component": "ForgotPasswordPage" },
+      "/p/:token": { "component": "PublicPackageView", "description": "Public package viewer (no auth)" }
+    },
+    "app": {
+      "/app": { "component": "Dashboard", "description": "Main dashboard with stats" },
+      "/app/packages": { "component": "PackagesList", "description": "All packages with filters" },
+      "/app/packages/new": { "component": "PackageEditor", "description": "Create new package" },
+      "/app/packages/:id": { "component": "PackageEditor", "description": "Edit existing package" },
+      "/app/packages/:id/preview": { "component": "PackagePreview", "description": "Preview before sending" },
+      "/app/countries": { "component": "CountriesPage", "description": "Manage countries" },
+      "/app/countries/:id": { "component": "CountryDetail", "description": "Country with destinations" },
+      "/app/destinations": { "component": "DestinationsPage" },
+      "/app/clients": { "component": "ClientsPage" },
+      "/app/clients/:id": { "component": "ClientDetail", "description": "Client with package history" },
+      "/app/templates": { "component": "TemplatesPage" },
+      "/app/settings": { "component": "SettingsPage", "description": "Agency settings & branding" },
+      "/app/settings/team": { "component": "TeamSettings", "description": "Manage users & roles" }
+    }
+  },
+
+  "components": {
+    "layout": {
+      "AppLayout": { "description": "Main app shell with sidebar and header", "children": ["Sidebar", "Header", "PageContent"] },
+      "Sidebar": { "description": "Right sidebar (RTL) with navigation", "props": ["activeTab", "collapsed"] },
+      "Header": { "description": "Top bar with breadcrumbs, search, language switch, notifications" }
+    },
+    "packages": {
+      "PackageEditor": { "description": "Main package editing experience", "children": ["EditorHeader", "ItemTypesPalette", "DaysTimeline", "PriceSummary"] },
+      "EditorHeader": { "description": "Package title, client info, status, action buttons" },
+      "DaysTimeline": { "description": "Horizontal scrollable timeline of days", "children": ["DayCard"] },
+      "DayCard": { "description": "Single day with droppable zone", "children": ["ItemCard"], "features": ["drag_target"] },
+      "ItemCard": { "description": "Single item within a day", "features": ["draggable", "editable", "deletable"] },
+      "ItemForm": { "description": "Dynamic form based on item type", "features": ["validates_by_type"] },
+      "ItemTypesPalette": { "description": "Side panel with draggable item types" },
+      "PriceSummary": { "description": "Breakdown by type + grand total" },
+      "PackageActions": { "description": "Send email, WhatsApp, PDF, copy link" }
+    },
+    "common": {
+      "Button": { "variants": ["primary", "secondary", "danger", "ghost"] },
+      "Input": { "variants": ["text", "number", "email", "tel", "url", "textarea"] },
+      "Select": {},
+      "Modal": {},
+      "Card": {},
+      "Badge": { "variants": ["draft", "sent", "confirmed", "cancelled"] },
+      "LoadingSpinner": {},
+      "EmptyState": {},
+      "ConfirmDialog": {},
+      "DatePicker": {},
+      "ImageUploader": {},
+      "SearchInput": {},
+      "Pagination": {},
+      "Toast": {}
+    }
+  },
+
+  "i18n": {
+    "he": {
+      "app_name": "TravelPro",
+      "dashboard": "לוח בקרה",
+      "packages": "חבילות",
+      "countries": "מדינות",
+      "destinations": "יעדים",
+      "clients": "לקוחות",
+      "templates": "תבניות",
+      "settings": "הגדרות",
+      "team": "צוות",
+      "new_package": "חבילה חדשה",
+      "edit_package": "עריכת חבילה",
+      "package_title": "שם החבילה",
+      "select_country": "בחר מדינה",
+      "select_destination": "בחר יעד",
+      "start_date": "תאריך התחלה",
+      "end_date": "תאריך סיום",
+      "day": "יום",
+      "days": "ימים",
+      "add_day": "הוסף יום",
+      "add_item": "הוסף פריט",
+      "remove": "הסר",
+      "save": "שמור",
+      "saving": "שומר...",
+      "saved": "נשמר בהצלחה",
+      "cancel": "ביטול",
+      "delete": "מחק",
+      "edit": "ערוך",
+      "duplicate": "שכפל",
+      "preview": "תצוגה מקדימה",
+      "download_pdf": "הורד PDF",
+      "send_email": "שלח במייל",
+      "send_whatsapp": "שלח בוואטסאפ",
+      "copy_link": "העתק קישור",
+      "link_copied": "הקישור הועתק!",
+      "search": "חיפוש...",
+      "filter": "סינון",
+      "sort": "מיון",
+      "no_results": "לא נמצאו תוצאות",
+      "loading": "טוען...",
+      "error": "אירעה שגיאה",
+      "try_again": "נסה שוב",
+      "confirm_delete": "האם אתה בטוח שברצונך למחוק?",
+      "total": "סה\"כ",
+      "price": "מחיר",
+      "notes": "הערות",
+      "internal_notes": "הערות פנימיות",
+      "client_name": "שם הלקוח",
+      "client_email": "אימייל",
+      "client_phone": "טלפון",
+      "adults": "מבוגרים",
+      "children": "ילדים",
+      "infants": "תינוקות",
+      "status": {
+        "draft": "טיוטא",
+        "sent": "נשלח",
+        "confirmed": "אושר",
+        "cancelled": "בוטל"
+      },
+      "settings_labels": {
+        "company_name": "שם החברה",
+        "company_email": "אימייל",
+        "company_phone": "טלפון",
+        "company_whatsapp": "WhatsApp",
+        "company_address": "כתובת",
+        "company_website": "אתר",
+        "primary_color": "צבע ראשי",
+        "secondary_color": "צבע משני",
+        "logo": "לוגו",
+        "terms": "תנאים והגבלות",
+        "email_signature": "חתימת אימייל",
+        "pdf_footer": "כיתוב תחתון PDF"
+      }
+    },
+    "en": {
+      "app_name": "TravelPro",
+      "dashboard": "Dashboard",
+      "packages": "Packages",
+      "countries": "Countries",
+      "destinations": "Destinations",
+      "clients": "Clients",
+      "templates": "Templates",
+      "settings": "Settings",
+      "team": "Team",
+      "new_package": "New Package",
+      "edit_package": "Edit Package",
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "duplicate": "Duplicate",
+      "preview": "Preview",
+      "download_pdf": "Download PDF",
+      "send_email": "Send Email",
+      "send_whatsapp": "Send WhatsApp",
+      "copy_link": "Copy Link",
+      "search": "Search...",
+      "day": "Day",
+      "days": "Days",
+      "add_day": "Add Day",
+      "add_item": "Add Item",
+      "total": "Total",
+      "price": "Price",
+      "notes": "Notes",
+      "status": {
+        "draft": "Draft",
+        "sent": "Sent",
+        "confirmed": "Confirmed",
+        "cancelled": "Cancelled"
+      }
+    }
+  },
+
+  "sample_data": {
+    "agency": {
+      "name": "סוכנות נסיעות הדגמה",
+      "slug": "demo-agency",
+      "primary_color": "#2563eb",
+      "contact_email": "info@demo-agency.com",
+      "contact_phone": "03-1234567",
+      "default_currency": "USD"
+    },
+    "countries": [
+      {
+        "name": "תאילנד",
+        "name_en": "Thailand",
+        "code": "TH",
+        "currency": "THB",
+        "currency_symbol": "฿",
+        "language": "תאילנדית, אנגלית",
+        "timezone": "UTC+7",
+        "visa_info": "30 ימים ללא ויזה לישראלים",
+        "best_season": "נובמבר - מרץ",
+        "destinations": [
+          {
+            "name": "בנגקוק",
+            "name_en": "Bangkok",
+            "region": "מרכז",
+            "airport_code": "BKK",
+            "latitude": 13.7563,
+            "longitude": 100.5018,
+            "highlights": ["ארמון המלך", "וואט פו", "וואט ארון", "שוק צ'טוצ'ק", "קאו סאן רואד"]
+          },
+          {
+            "name": "פוקט",
+            "name_en": "Phuket",
+            "region": "דרום",
+            "airport_code": "HKT",
+            "latitude": 7.8804,
+            "longitude": 98.3923,
+            "highlights": ["חוף פטונג", "איי פי פי", "בודהה הגדול", "מפרץ פאנג נגה"]
+          },
+          {
+            "name": "צ'יאנג מאי",
+            "name_en": "Chiang Mai",
+            "region": "צפון",
+            "airport_code": "CNX",
+            "latitude": 18.7883,
+            "longitude": 98.9853,
+            "highlights": ["דוי סוטפ", "העיר העתיקה", "שמורת פילים", "שוק לילה"]
+          },
+          {
+            "name": "קראבי",
+            "name_en": "Krabi",
+            "region": "דרום",
+            "airport_code": "KBV",
+            "latitude": 8.0863,
+            "longitude": 98.9063,
+            "highlights": ["ריילי ביץ'", "מקדש מערת הנמר", "4 איים"]
+          }
+        ]
+      }
+    ],
+    "package": {
+      "title": "חבילת תאילנד מושלמת - 10 ימים",
+      "status": "draft",
+      "start_date": "2026-03-15",
+      "end_date": "2026-03-25",
+      "currency": "USD",
+      "adults": 2,
+      "children": 1,
+      "client_name": "משפחת כהן",
+      "client_email": "cohen@gmail.com",
+      "client_phone": "050-1234567",
+      "days": [
+        {
+          "day_number": 1,
+          "date": "2026-03-15",
+          "title": "הגעה לבנגקוק",
+          "destination": "בנגקוק",
+          "items": [
+            { "type": "flight", "title": "טיסה TLV → BKK", "subtitle": "Thai Airways TG955", "time_start": "01:30", "time_end": "15:45", "price": 850, "data": { "airline": "Thai Airways", "flight_number": "TG955", "from": "TLV", "to": "BKK" } },
+            { "type": "transfer", "title": "העברה לשמלון", "subtitle": "רכב פרטי + נהג", "duration": "45 דקות", "price": 35, "data": { "vehicle_type": "private_car", "from": "נמל תעופה BKK", "to": "Marriott Sukhumvit" } },
+            { "type": "accommodation", "title": "Bangkok Marriott Hotel", "subtitle": "Deluxe Room, BB, 3 לילות", "price": 450, "data": { "hotel_name": "Bangkok Marriott Hotel Sukhumvit", "room_type": "Deluxe Room", "nights": 3, "meals": "BB", "stars": 5 } }
+          ]
+        },
+        {
+          "day_number": 2,
+          "date": "2026-03-16",
+          "title": "סיור ארמונות ומקדשים",
+          "destination": "בנגקוק",
+          "items": [
+            { "type": "activity", "title": "סיור ארמון המלך + מקדשים", "subtitle": "ארמון המלך, וואט פו, וואט ארון", "time_start": "08:00", "time_end": "14:00", "price": 85, "data": { "name": "סיור ארמונות ומקדשים", "duration": "6 שעות", "guide_language": "עברית" } },
+            { "type": "meal", "title": "Blue Elephant", "subtitle": "ארוחת צהריים תאילנדית", "time_start": "14:30", "price": 45, "data": { "restaurant": "Blue Elephant", "meal_type": "lunch", "cuisine": "Thai Royal" } },
+            { "type": "free_time", "title": "זמן חופשי", "subtitle": "המלצה: שוק צ'טוצ'ק / MBK", "time_start": "16:00", "price": 0, "data": { "suggestions": "שוק צ'טוצ'ק, קניון MBK, קאו סאן רואד" } }
+          ]
+        },
+        {
+          "day_number": 3,
+          "date": "2026-03-17",
+          "title": "שווקים צפים",
+          "destination": "בנגקוק",
+          "items": [
+            { "type": "activity", "title": "שוק צף דמנואן סדואק", "subtitle": "כולל שייט בסירה", "time_start": "06:00", "time_end": "12:00", "price": 65, "data": { "name": "שוק צף דמנואן סדואק", "duration": "6 שעות" } },
+            { "type": "activity", "title": "שוק רכבת מכטונג", "subtitle": "חוויה ייחודית!", "time_start": "13:00", "time_end": "15:00", "price": 30, "data": { "name": "שוק רכבת מכטונג" } }
+          ]
+        },
+        {
+          "day_number": 4,
+          "date": "2026-03-18",
+          "title": "מעבר לפוקט",
+          "destination": "פוקט",
+          "items": [
+            { "type": "transition", "title": "בנגקוק → פוקט", "subtitle": "טיסה פנימית Bangkok Air", "time_start": "10:00", "time_end": "11:30", "price": 95, "data": { "from_destination": "בנגקוק", "to_destination": "פוקט", "method": "flight", "carrier": "Bangkok Air" } },
+            { "type": "transfer", "title": "העברה לרזורט", "subtitle": "מיניבוס", "duration": "30 דקות", "price": 25, "data": { "vehicle_type": "minibus", "from": "נמל תעופה HKT", "to": "Amari Phuket" } },
+            { "type": "accommodation", "title": "Amari Phuket", "subtitle": "Pool Villa, HB, 5 לילות", "price": 1200, "data": { "hotel_name": "Amari Phuket", "room_type": "Pool Villa", "nights": 5, "meals": "HB", "stars": 5 } }
+          ]
+        },
+        {
+          "day_number": 5,
+          "date": "2026-03-19",
+          "title": "יום חוף ופילים",
+          "destination": "פוקט",
+          "items": [
+            { "type": "free_time", "title": "בוקר חופשי", "subtitle": "בריכה / חוף המלון", "time_start": "08:00", "time_end": "12:00", "price": 0 },
+            { "type": "activity", "title": "שמורת פילים אתית", "subtitle": "מפגש עם פילים, האכלה, רחצה", "time_start": "13:00", "time_end": "17:00", "price": 95, "data": { "name": "Elephant Sanctuary", "duration": "4 שעות" } }
+          ]
+        },
+        {
+          "day_number": 6,
+          "date": "2026-03-20",
+          "title": "איי פי פי",
+          "destination": "פוקט",
+          "items": [
+            { "type": "activity", "title": "שייט לאיי פי פי", "subtitle": "סנורקלינג, מאיה ביי, ארוחת צהריים", "time_start": "07:30", "time_end": "17:00", "price": 130, "data": { "name": "Phi Phi Islands Speedboat Tour", "includes": "סנורקלינג, ארוחת צהריים, משקאות" } }
+          ]
+        }
+      ]
+    }
+  },
+
+  "pdf_template": {
+    "format": "A4",
+    "direction": "rtl",
+    "font": "Heebo",
+    "sections": [
+      { "type": "header", "content": ["agency_logo", "agency_name", "agency_contact"] },
+      { "type": "title", "content": ["package_title", "client_name", "dates", "travelers_count"] },
+      { "type": "summary", "content": ["country", "destinations", "days_count", "total_price"] },
+      { "type": "days_loop", "content": ["day_header", "day_items"] },
+      { "type": "price_table", "content": ["breakdown_by_type", "subtotal", "total"] },
+      { "type": "terms", "content": ["terms_text"] },
+      { "type": "footer", "content": ["agency_name", "phone", "email", "website"] }
+    ]
+  },
+
+  "email_template": {
+    "type": "responsive_html",
+    "sections": [
+      { "type": "header", "content": ["logo", "agency_name"] },
+      { "type": "greeting", "content": "שלום {client_name}," },
+      { "type": "intro", "content": "הנה הצעת המחיר שהכנתי עבורך:" },
+      { "type": "package_summary", "content": ["title", "dates", "destinations", "price"] },
+      { "type": "cta_buttons", "content": ["view_online", "download_pdf"] },
+      { "type": "agent_info", "content": ["name", "phone", "email"] },
+      { "type": "footer", "content": ["agency_name", "address", "unsubscribe"] }
+    ],
+    "attachments": ["pdf"]
+  },
+
+  "whatsapp_template": {
+    "format": "🌴 *{package_title}*\n\n📅 {start_date} - {end_date}\n👥 {adults} מבוגרים{children_text}\n💰 סה\"כ: {currency}{total_price}\n\n📍 יעדים: {destinations}\n\n🔗 לצפייה בתוכנית המלאה:\n{public_url}\n\nלשאלות נוספות:\n📞 {agent_phone}\n✉️ {agent_email}"
+  },
+
+  "user_roles": {
+    "owner": {
+      "label_he": "בעלים",
+      "label_en": "Owner",
+      "permissions": ["all"]
+    },
+    "admin": {
+      "label_he": "מנהל",
+      "label_en": "Admin",
+      "permissions": ["manage_packages", "manage_clients", "manage_destinations", "manage_team", "manage_settings", "view_analytics"]
+    },
+    "agent": {
+      "label_he": "סוכן",
+      "label_en": "Agent",
+      "permissions": ["manage_packages", "manage_clients", "view_destinations", "manage_templates"]
+    },
+    "viewer": {
+      "label_he": "צופה",
+      "label_en": "Viewer",
+      "permissions": ["view_packages", "view_clients", "view_destinations"]
+    }
+  },
+
+  "subscription_plans": {
+    "basic": {
+      "label_he": "בסיסי",
+      "label_en": "Basic",
+      "price_monthly": 29,
+      "price_yearly": 290,
+      "limits": { "users": 1, "packages_per_month": 20, "countries": 5 },
+      "features": ["package_editor", "pdf_generation", "email_sending", "whatsapp", "public_links"]
+    },
+    "pro": {
+      "label_he": "מקצועי",
+      "label_en": "Pro",
+      "price_monthly": 79,
+      "price_yearly": 790,
+      "limits": { "users": 5, "packages_per_month": -1, "countries": -1 },
+      "features": ["all_basic", "whitelabel", "custom_pdf", "templates", "client_management", "analytics"]
+    },
+    "enterprise": {
+      "label_he": "עסקי",
+      "label_en": "Enterprise",
+      "price_monthly": 199,
+      "price_yearly": 1990,
+      "limits": { "users": -1, "packages_per_month": -1, "countries": -1 },
+      "features": ["all_pro", "api_access", "custom_domain", "priority_support", "multi_branch", "sso"]
+    }
+  },
+
+  "design": {
+    "colors": {
+      "primary": "#2563eb",
+      "primary_light": "#dbeafe",
+      "secondary": "#059669",
+      "secondary_light": "#d1fae5",
+      "accent": "#7c3aed",
+      "warning": "#f59e0b",
+      "danger": "#ef4444",
+      "dark": "#1e293b",
+      "light": "#f8fafc"
+    },
+    "sidebar": {
+      "width": "224px",
+      "collapsed_width": "56px",
+      "bg": "#1e293b",
+      "active_bg": "#2563eb"
+    },
+    "border_radius": {
+      "sm": "0.375rem",
+      "md": "0.5rem",
+      "lg": "0.75rem",
+      "xl": "1rem"
+    }
+  },
+
+  "completion_checklist": [
+    "Supabase project created with all tables",
+    "RLS policies active on all tables",
+    "Auth flow working (signup, login, logout)",
+    "Multi-tenant isolation verified",
+    "Dashboard with real stats",
+    "Package list with filters and search",
+    "Package editor with drag & drop",
+    "All 8 item type forms working",
+    "Auto-save on package editor",
+    "Price auto-calculation",
+    "PDF generation with Hebrew",
+    "Email sending with PDF attachment",
+    "WhatsApp link generation",
+    "Public package viewer",
+    "Client management CRUD",
+    "Country & destination management",
+    "Template system",
+    "Settings & branding page",
+    "Hebrew/English language switch",
+    "RTL layout correct",
+    "Mobile responsive",
+    "Sample Thailand data seeded",
+    "Error handling on all forms",
+    "Loading states on all pages",
+    "Empty states on all lists"
+  ]
+}
