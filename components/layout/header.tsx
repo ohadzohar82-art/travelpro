@@ -19,7 +19,7 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-30 w-full border-b border-gray-200 bg-white">
+    <header className="sticky top-0 z-30 w-full border-b border-gray-200 bg-white shadow-sm">
       <div className="flex h-16 items-center gap-4 px-6">
         <div className="flex-1">
           <div className="relative max-w-md">

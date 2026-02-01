@@ -34,23 +34,23 @@ export function Sidebar() {
     <>
       <div
         className={cn(
-          'fixed right-0 top-0 h-full bg-dark text-white transition-all duration-300 z-40',
-          collapsed ? 'w-14' : 'w-56'
+          'fixed right-0 top-0 h-full bg-white border-l border-gray-200 shadow-lg transition-all duration-300 z-40',
+          collapsed ? 'w-16' : 'w-64'
         )}
       >
         <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between p-4 border-b border-gray-700">
+          <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
             {!collapsed && (
-              <h1 className="text-xl font-bold text-white">TravelPro</h1>
+              <h1 className="text-xl font-bold text-gray-900">TravelPro</h1>
             )}
             <button
               onClick={() => setCollapsed(!collapsed)}
-              className="p-2 hover:bg-gray-700 rounded-lg transition"
+              className="p-2 hover:bg-gray-200 rounded-lg transition-colors text-gray-600"
             >
               {collapsed ? <Menu size={20} /> : <X size={20} />}
             </button>
           </div>
-          <nav className="flex-1 p-4 space-y-2">
+          <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
             {navigation.map((item) => {
               const Icon = item.icon
               const isActive = pathname === item.href || pathname?.startsWith(item.href + '/')
@@ -59,21 +59,21 @@ export function Sidebar() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors',
+                    'flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 font-medium',
                     isActive
-                      ? 'bg-primary text-white'
-                      : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                      ? 'bg-primary text-white shadow-sm'
+                      : 'text-gray-700 hover:bg-gray-100 hover:text-primary'
                   )}
                 >
-                  <Icon size={20} />
-                  {!collapsed && <span>{item.name}</span>}
+                  <Icon size={20} className={isActive ? 'text-white' : 'text-gray-500'} />
+                  {!collapsed && <span className="text-sm">{item.name}</span>}
                 </Link>
               )
             })}
           </nav>
         </div>
       </div>
-      <div className={cn('transition-all duration-300', collapsed ? 'w-14' : 'w-56')} />
+      <div className={cn('transition-all duration-300', collapsed ? 'w-16' : 'w-64')} />
     </>
   )
 }

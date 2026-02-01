@@ -126,89 +126,97 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">לוח בקרה</h1>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-900">לוח בקרה</h1>
         <p className="text-gray-500 mt-2">ברוך הבא{user?.full_name ? `, ${user.full_name}` : ''}</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">סה&quot;כ חבילות</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-semibold text-gray-600">סה&quot;כ חבילות</CardTitle>
+            <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
+              <Package className="h-5 w-5 text-blue-600" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.total_packages}</div>
-            <p className="text-xs text-muted-foreground">כל החבילות</p>
+            <div className="text-3xl font-bold text-gray-900">{stats.total_packages}</div>
+            <p className="text-xs text-gray-500 mt-1">כל החבילות</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">לקוחות</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-semibold text-gray-600">לקוחות</CardTitle>
+            <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
+              <Users className="h-5 w-5 text-green-600" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.total_clients}</div>
-            <p className="text-xs text-muted-foreground">לקוחות פעילים</p>
+            <div className="text-3xl font-bold text-gray-900">{stats.total_clients}</div>
+            <p className="text-xs text-gray-500 mt-1">לקוחות פעילים</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">סה&quot;כ הכנסות</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-semibold text-gray-600">סה&quot;כ הכנסות</CardTitle>
+            <div className="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center">
+              <DollarSign className="h-5 w-5 text-purple-600" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-3xl font-bold text-gray-900">
               {new Intl.NumberFormat('he-IL', {
                 style: 'currency',
                 currency: agency?.default_currency || 'USD',
               }).format(stats.total_revenue)}
             </div>
-            <p className="text-xs text-muted-foreground">כל הזמנים</p>
+            <p className="text-xs text-gray-500 mt-1">כל הזמנים</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">הכנסות החודש</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-semibold text-gray-600">הכנסות החודש</CardTitle>
+            <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
+              <TrendingUp className="h-5 w-5 text-orange-600" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-3xl font-bold text-gray-900">
               {new Intl.NumberFormat('he-IL', {
                 style: 'currency',
                 currency: agency?.default_currency || 'USD',
               }).format(stats.revenue_this_month)}
             </div>
-            <p className="text-xs text-muted-foreground">החודש הנוכחי</p>
+            <p className="text-xs text-gray-500 mt-1">החודש הנוכחי</p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2">
         <Card>
-          <CardHeader>
-            <CardTitle>סטטוס חבילות</CardTitle>
+          <CardHeader className="border-b bg-gray-50">
+            <CardTitle className="text-lg">סטטוס חבילות</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span>טיוטא</span>
-                <span className="font-semibold">{stats.packages_by_status.draft}</span>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <span className="text-gray-700 font-medium">טיוטא</span>
+                <span className="text-xl font-bold text-gray-900">{stats.packages_by_status.draft}</span>
               </div>
-              <div className="flex justify-between">
-                <span>נשלח</span>
-                <span className="font-semibold">{stats.packages_by_status.sent}</span>
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <span className="text-gray-700 font-medium">נשלח</span>
+                <span className="text-xl font-bold text-gray-900">{stats.packages_by_status.sent}</span>
               </div>
-              <div className="flex justify-between">
-                <span>אושר</span>
-                <span className="font-semibold">{stats.packages_by_status.confirmed}</span>
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <span className="text-gray-700 font-medium">אושר</span>
+                <span className="text-xl font-bold text-gray-900">{stats.packages_by_status.confirmed}</span>
               </div>
-              <div className="flex justify-between">
-                <span>בוטל</span>
-                <span className="font-semibold">{stats.packages_by_status.cancelled}</span>
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <span className="text-gray-700 font-medium">בוטל</span>
+                <span className="text-xl font-bold text-gray-900">{stats.packages_by_status.cancelled}</span>
               </div>
             </div>
           </CardContent>
