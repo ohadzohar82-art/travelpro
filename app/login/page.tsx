@@ -53,10 +53,13 @@ export default function LoginPage() {
         : userData.agencies
       setAgency(agency)
 
+      // Success - redirect immediately
       toast.success('התחברת בהצלחה!')
       
-      // Force redirect - this always works
-      window.location.href = '/app'
+      // Force redirect - this always works, no matter what
+      setTimeout(() => {
+        window.location.href = '/app'
+      }, 500)
     } catch (error: any) {
       console.error('Login error:', error)
       toast.error(error.message || 'שגיאה בהתחברות')
