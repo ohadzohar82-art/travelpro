@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation'
 
 export default function DashboardPage() {
   const router = useRouter()
-  const { user, agency } = useAuthStore()
+  const { user, agency, setUser, setAgency } = useAuthStore()
   const [stats, setStats] = useState({
     total_packages: 0,
     packages_by_status: { draft: 0, sent: 0, confirmed: 0, cancelled: 0 },
@@ -20,27 +20,58 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!user) {
-      router.push('/login')
-      return
+    const checkAuth = async () => {
+      // If no user in store, check if we're actually authenticated
+      if (!user) {
+        const supabase = createClient()
+        const { data: { user: authUser } } = await supabase.auth.getUser()
+        
+        if (!authUser) {
+          router.push('/login')
+          return
+        }
+        
+        // If authenticated but no user in store, fetch it
+        const { data: userDataArray } = await supabase
+          .from('users')
+          .select('*, agencies(*)')
+          .eq('id', authUser.id)
+        
+        if (userDataArray && userDataArray.length > 0) {
+          const userData = userDataArray[0]
+          setUser(userData)
+          const agencyData = Array.isArray(userData.agencies) 
+            ? userData.agencies[0] 
+            : userData.agencies
+          setAgency(agencyData)
+          loadStats(userData)
+        } else {
+          router.push('/login')
+          return
+        }
+      } else {
+        loadStats(user)
+      }
     }
-
-    loadStats()
+    
+    checkAuth()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user])
+  }, [])
 
-  const loadStats = async () => {
+  const loadStats = async (currentUser = user) => {
+    if (!currentUser) return
+    
     try {
       const supabase = createClient()
       const { data: packages } = await supabase
         .from('packages')
         .select('status, total_price')
-        .eq('agency_id', user?.agency_id)
+        .eq('agency_id', currentUser.agency_id)
 
       const { data: clients } = await supabase
         .from('clients')
         .select('id')
-        .eq('agency_id', user?.agency_id)
+        .eq('agency_id', currentUser.agency_id)
 
       const packagesByStatus = {
         draft: packages?.filter((p) => p.status === 'draft').length || 0,

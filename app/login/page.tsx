@@ -51,7 +51,9 @@ export default function LoginPage() {
       setAgency(agency)
 
       toast.success('התחברת בהצלחה!')
-      router.push('/app')
+      
+      // Use window.location for a hard redirect to ensure cookies are set
+      window.location.href = '/app'
     } catch (error: any) {
       toast.error(error.message || 'שגיאה בהתחברות')
     } finally {
