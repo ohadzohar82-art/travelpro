@@ -14,6 +14,7 @@ import { DaysTimeline } from './days-timeline'
 import { ItemTypesPalette } from './item-types-palette'
 import { PriceSummary } from './price-summary'
 import { generatePublicToken } from '@/lib/utils'
+import { Loader } from '@/components/ui/loader'
 import type { Database } from '@/types/database'
 
 type Package = Database['public']['Tables']['packages']['Row']
@@ -298,7 +299,7 @@ export function PackageEditor({ packageId }: { packageId: string }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-lg">טוען...</div>
+        <Loader />
       </div>
     )
   }

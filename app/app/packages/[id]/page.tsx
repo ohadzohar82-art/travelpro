@@ -27,11 +27,11 @@ export default function PackageEditPage({ params }: { params: Promise<{ id: stri
   // Use useParams hook instead of use() for better compatibility
   return (
     <ErrorBoundary>
-      <Suspense fallback={
-        <div className="flex items-center justify-center h-64">
-          <div className="text-lg text-gray-500">טוען...</div>
-        </div>
-      }>
+          <Suspense fallback={
+            <div className="flex items-center justify-center h-64">
+              <Loader />
+            </div>
+          }>
         <PackageEditorWrapper />
       </Suspense>
     </ErrorBoundary>

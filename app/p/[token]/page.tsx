@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { createClient } from '@/lib/supabase/client'
 import { formatDate, formatCurrency } from '@/lib/utils'
 import Image from 'next/image'
+import { Loader } from '@/components/ui/loader'
 import type { Database } from '@/types/database'
 
 type Package = Database['public']['Tables']['packages']['Row']
@@ -91,7 +92,7 @@ export default function PublicPackageView() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-lg text-gray-600">טוען...</div>
+        <Loader />
       </div>
     )
   }

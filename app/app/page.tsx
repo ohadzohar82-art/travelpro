@@ -8,6 +8,7 @@ import { useAuthStore } from '@/store/useAuthStore'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
+import { Loader } from '@/components/ui/loader'
 import type { Database } from '@/types/database'
 
 type Country = Database['public']['Tables']['countries']['Row']
@@ -145,7 +146,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-lg">טוען...</div>
+        <Loader />
       </div>
     )
   }

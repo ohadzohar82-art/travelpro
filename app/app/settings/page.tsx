@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useAuthStore } from '@/store/useAuthStore'
 import { toast } from 'sonner'
 import Image from 'next/image'
+import { Loader } from '@/components/ui/loader'
 import type { Database } from '@/types/database'
 
 type Agency = Database['public']['Tables']['agencies']['Row']
@@ -91,7 +92,7 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-lg">טוען...</div>
+        <Loader />
       </div>
     )
   }

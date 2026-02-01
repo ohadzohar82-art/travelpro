@@ -11,6 +11,7 @@ import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthStore } from '@/store/useAuthStore'
 import { toast } from 'sonner'
+import { Loader } from '@/components/ui/loader'
 import type { Database } from '@/types/database'
 
 type Country = Database['public']['Tables']['countries']['Row']
@@ -190,7 +191,7 @@ export default function CountriesPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-lg">טוען...</div>
+        <Loader />
       </div>
     )
   }

@@ -9,6 +9,7 @@ import { Plus } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthStore } from '@/store/useAuthStore'
 import { toast } from 'sonner'
+import { Loader } from '@/components/ui/loader'
 import type { Database } from '@/types/database'
 
 type Template = Database['public']['Tables']['templates']['Row']
@@ -139,7 +140,7 @@ export default function TemplatesPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-lg">טוען...</div>
+        <Loader />
       </div>
     )
   }
