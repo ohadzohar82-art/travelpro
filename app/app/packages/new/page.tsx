@@ -37,9 +37,11 @@ export default function NewPackagePage() {
             .eq('id', session.user.id)
           if (userDataArray && userDataArray.length > 0) {
             currentUser = userDataArray[0]
-            currentAgency = Array.isArray(currentUser.agencies) 
-              ? currentUser.agencies[0] 
-              : currentUser.agencies
+            if (currentUser && currentUser.agencies) {
+              currentAgency = Array.isArray(currentUser.agencies) 
+                ? currentUser.agencies[0] 
+                : currentUser.agencies
+            }
           }
         }
       }
