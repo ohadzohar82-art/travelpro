@@ -66,7 +66,15 @@ export default function SignupPage() {
       toast.success('נרשמת בהצלחה! אנא בדוק את האימייל שלך לאימות.')
       router.push('/login')
     } catch (error: any) {
-      toast.error(error.message || 'שגיאה בהרשמה')
+      console.error('Signup error:', error)
+      const errorMessage = error.message || 'שגיאה בהרשמה'
+      
+      // Check if it's a Supabase connection error
+      if (errorMessage.includes('placeholder') || errorMessage.includes('fetch')) {
+        toast.error('Supabase לא מוגדר. אנא הגדר את משתני הסביבה ב-Vercel.')
+      } else {
+        toast.error(errorMessage)
+      }
     } finally {
       setLoading(false)
     }
