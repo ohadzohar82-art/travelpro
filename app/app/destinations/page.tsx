@@ -123,6 +123,7 @@ export default function DestinationsPage() {
           name: newDestination.name,
           country_id: newDestination.country_id || null,
           description: newDestination.description || null,
+          image_url: newDestination.image_url || null,
           highlights: [],
           gallery: [],
           is_active: true,
@@ -142,7 +143,7 @@ export default function DestinationsPage() {
 
       toast.success('יעד נוצר בהצלחה!')
       setShowModal(false)
-      setNewDestination({ name: '', country_id: '', description: '' })
+      setNewDestination({ name: '', country_id: '', description: '', image_url: '' })
       loadDestinations()
     } catch (error: any) {
       console.error('Error creating destination:', error)
@@ -256,7 +257,17 @@ export default function DestinationsPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {destinations.map((destination) => (
-            <Card key={destination.id} className="hover:shadow-md transition-shadow">
+            <Card key={destination.id} className="hover:shadow-md transition-shadow overflow-hidden">
+              {destination.image_url && (
+                <div className="relative w-full h-48">
+                  <Image
+                    src={destination.image_url}
+                    alt={destination.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              )}
               <CardHeader>
                 <CardTitle>{destination.name}</CardTitle>
               </CardHeader>
