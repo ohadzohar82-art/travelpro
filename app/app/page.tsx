@@ -24,28 +24,48 @@ export default function DashboardPage() {
       try {
         const supabase = createClient()
         
-        // First check session (faster, uses cookies)
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+        // Give cookies time to be available after redirect
+        await new Promise(resolve => setTimeout(resolve, 200))
         
-        if (sessionError || !session || !session.user) {
-          // If no session, try getUser (might have token in memory)
-          const { data: { user: authUser }, error: userError } = await supabase.auth.getUser()
+        // Try multiple times to get session (cookies might not be ready immediately)
+        let session = null
+        let authUser = null
+        let attempts = 0
+        const maxAttempts = 5
+        
+        while (attempts < maxAttempts && !session && !authUser) {
+          // First try getSession (uses cookies)
+          const { data: { session: sessionData }, error: sessionError } = await supabase.auth.getSession()
           
-          if (userError || !authUser) {
-            console.log('No authenticated user found, redirecting to login')
-            router.push('/login')
-            return
+          if (sessionData && sessionData.user && !sessionError) {
+            session = sessionData
+            authUser = sessionData.user
+            break
           }
           
-          // We have a user, fetch their data
-          await loadUserData(supabase, authUser.id)
+          // If no session, try getUser (might have token)
+          const { data: { user: userData }, error: userError } = await supabase.auth.getUser()
+          
+          if (userData && !userError) {
+            authUser = userData
+            break
+          }
+          
+          // Wait before retry
+          if (attempts < maxAttempts - 1) {
+            await new Promise(resolve => setTimeout(resolve, 300))
+          }
+          attempts++
+        }
+        
+        // If we still don't have a user after retries, redirect
+        if (!authUser) {
+          console.log('No authenticated user found after retries, redirecting to login')
+          router.push('/login')
           return
         }
         
-        // We have a session, use it
-        const authUser = session.user
-        
-        // Fetch user data if not in store or ID doesn't match
+        // We have a user, fetch their data
         if (!user || user.id !== authUser.id) {
           await loadUserData(supabase, authUser.id)
         } else {
@@ -53,7 +73,14 @@ export default function DashboardPage() {
         }
       } catch (error) {
         console.error('Auth check error:', error)
-        router.push('/login')
+        // Only redirect on actual errors, not just missing session
+        if (error instanceof Error && error.message.includes('JWT')) {
+          router.push('/login')
+        } else {
+          // For other errors, try to continue
+          console.log('Non-critical auth error, continuing...')
+          setLoading(false)
+        }
       }
     }
     

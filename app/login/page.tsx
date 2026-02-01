@@ -33,26 +33,17 @@ export default function LoginPage() {
       if (authError) throw authError
       if (!authData.user) throw new Error('Login failed - no user returned')
 
-      // CRITICAL: Wait for session to be established and verify it exists
-      let sessionVerified = false
-      let attempts = 0
-      const maxAttempts = 10
+      // Verify session exists (signInWithPassword should set it automatically)
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
       
-      while (!sessionVerified && attempts < maxAttempts) {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      if (sessionError || !session || !session.user) {
+        // Session might not be immediately available, wait a bit
+        await new Promise(resolve => setTimeout(resolve, 200))
+        const { data: { session: retrySession } } = await supabase.auth.getSession()
         
-        if (session && session.user && !sessionError) {
-          sessionVerified = true
-          break
+        if (!retrySession || !retrySession.user) {
+          console.warn('Session not immediately available, but continuing with redirect')
         }
-        
-        // Wait 100ms before retry
-        await new Promise(resolve => setTimeout(resolve, 100))
-        attempts++
-      }
-
-      if (!sessionVerified) {
-        throw new Error('Session could not be established. Please try again.')
       }
 
       // Fetch user and agency data
@@ -77,10 +68,9 @@ export default function LoginPage() {
 
       toast.success('התחברת בהצלחה!')
       
-      // Redirect after everything is confirmed
-      setTimeout(() => {
-        window.location.href = '/app'
-      }, 300)
+      // Force redirect - use replace to prevent back button issues
+      // Don't use setTimeout - redirect immediately
+      window.location.replace('/app')
     } catch (error: any) {
       console.error('Login error:', error)
       toast.error(error.message || 'שגיאה בהתחברות')
