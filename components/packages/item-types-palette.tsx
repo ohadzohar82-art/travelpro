@@ -49,6 +49,10 @@ export function ItemTypesPalette({ packageId, days }: ItemTypesPaletteProps) {
         .eq('id', dayId)
         .single()
 
+      if (!day) {
+        throw new Error('Day not found')
+      }
+
       const { data, error } = await supabase
         .from('package_items')
         .insert({

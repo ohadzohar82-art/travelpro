@@ -21,6 +21,7 @@ export default function ClientsPage() {
     if (user) {
       loadClients()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, search])
 
   const loadClients = async () => {

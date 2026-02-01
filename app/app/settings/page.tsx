@@ -22,6 +22,7 @@ export default function SettingsPage() {
       setFormData(agency)
       setLoading(false)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agency])
 
   const handleSave = async () => {

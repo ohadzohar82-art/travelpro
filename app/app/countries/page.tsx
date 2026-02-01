@@ -19,6 +19,7 @@ export default function CountriesPage() {
     if (user) {
       loadCountries()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
 
   const loadCountries = async () => {
