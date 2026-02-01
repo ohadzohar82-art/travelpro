@@ -25,45 +25,55 @@ export default function DashboardPage() {
         const supabase = createClient()
         
         // Give cookies time to be available after redirect
-        await new Promise(resolve => setTimeout(resolve, 200))
+        await new Promise(resolve => setTimeout(resolve, 300))
+        
+        console.log('Dashboard: Checking authentication...')
         
         // Try multiple times to get session (cookies might not be ready immediately)
         let session = null
         let authUser = null
         let attempts = 0
-        const maxAttempts = 5
+        const maxAttempts = 8
         
         while (attempts < maxAttempts && !session && !authUser) {
+          console.log(`Dashboard: Auth check attempt ${attempts + 1}/${maxAttempts}`)
+          
           // First try getSession (uses cookies)
           const { data: { session: sessionData }, error: sessionError } = await supabase.auth.getSession()
+          console.log('Dashboard: getSession result:', { hasSession: !!sessionData, hasUser: !!sessionData?.user, error: sessionError?.message })
           
           if (sessionData && sessionData.user && !sessionError) {
             session = sessionData
             authUser = sessionData.user
+            console.log('Dashboard: Session found!', authUser.id)
             break
           }
           
           // If no session, try getUser (might have token)
           const { data: { user: userData }, error: userError } = await supabase.auth.getUser()
+          console.log('Dashboard: getUser result:', { hasUser: !!userData, error: userError?.message })
           
           if (userData && !userError) {
             authUser = userData
+            console.log('Dashboard: User found via getUser!', authUser.id)
             break
           }
           
           // Wait before retry
           if (attempts < maxAttempts - 1) {
-            await new Promise(resolve => setTimeout(resolve, 300))
+            await new Promise(resolve => setTimeout(resolve, 400))
           }
           attempts++
         }
         
         // If we still don't have a user after retries, redirect
         if (!authUser) {
-          console.log('No authenticated user found after retries, redirecting to login')
+          console.error('Dashboard: No authenticated user found after all retries, redirecting to login')
           router.push('/login')
           return
         }
+        
+        console.log('Dashboard: Authentication successful, loading user data')
         
         // We have a user, fetch their data
         if (!user || user.id !== authUser.id) {

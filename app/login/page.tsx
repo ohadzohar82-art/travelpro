@@ -68,9 +68,16 @@ export default function LoginPage() {
 
       toast.success('התחברת בהצלחה!')
       
-      // Force redirect - use replace to prevent back button issues
-      // Don't use setTimeout - redirect immediately
-      window.location.replace('/app')
+      // Force redirect - ALWAYS redirect after successful login
+      console.log('Login successful, redirecting to /app')
+      // Use both methods to ensure redirect happens
+      window.location.href = '/app'
+      // Fallback in case first one doesn't work
+      setTimeout(() => {
+        if (window.location.pathname !== '/app') {
+          window.location.replace('/app')
+        }
+      }, 100)
     } catch (error: any) {
       console.error('Login error:', error)
       toast.error(error.message || 'שגיאה בהתחברות')
