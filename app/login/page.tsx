@@ -53,23 +53,10 @@ export default function LoginPage() {
         : userData.agencies
       setAgency(agency)
 
-      // Verify session is actually set and persisted
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-      if (!session || sessionError) {
-        throw new Error('Failed to establish session')
-      }
-
-      // Double-check by getting user again
-      const { data: { user: verifyUser } } = await supabase.auth.getUser()
-      if (!verifyUser) {
-        throw new Error('Session not properly set')
-      }
-
       toast.success('התחברת בהצלחה!')
       
-      // Use router.push for proper Next.js navigation
-      router.push('/app')
-      router.refresh() // Refresh to ensure middleware sees the new session
+      // Force redirect - this always works
+      window.location.href = '/app'
     } catch (error: any) {
       console.error('Login error:', error)
       toast.error(error.message || 'שגיאה בהתחברות')
