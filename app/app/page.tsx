@@ -23,26 +23,44 @@ export default function DashboardPage() {
     const checkAuth = async () => {
       console.log('Dashboard: Checking auth, user in store:', user)
       
-      // If no user in store, check if we're actually authenticated
-      if (!user) {
-        const supabase = createClient()
-        const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
-        
-        console.log('Dashboard: Auth check result:', { authUser, authError })
-        
-        if (!authUser || authError) {
-          console.log('Dashboard: No auth user, redirecting to login')
-          window.location.href = '/login'
-          return
-        }
-        
-        // If authenticated but no user in store, fetch it
+      const supabase = createClient()
+      
+      // Always check auth from Supabase (don't rely on store)
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
+      
+      console.log('Dashboard: Auth check result:', { authUser, authError })
+      
+      if (!authUser) {
+        console.log('Dashboard: No auth user found')
+        // Wait a bit before redirecting - might be a timing issue
+        setTimeout(() => {
+          const supabase = createClient()
+          supabase.auth.getUser().then(({ data: { user: retryUser } }) => {
+            if (!retryUser) {
+              console.log('Dashboard: Still no auth user after retry, redirecting')
+              window.location.href = '/login'
+            }
+          })
+        }, 1000)
+        return
+      }
+      
+      // If we have authUser but no user in store, or user ID doesn't match, fetch it
+      if (!user || user.id !== authUser.id) {
+        console.log('Dashboard: Fetching user data from database')
         const { data: userDataArray, error: userError } = await supabase
           .from('users')
           .select('*, agencies(*)')
           .eq('id', authUser.id)
         
         console.log('Dashboard: User data fetch:', { userDataArray, userError })
+        
+        if (userError) {
+          console.error('Dashboard: Error fetching user:', userError)
+          // Don't redirect on error, just show loading
+          setLoading(false)
+          return
+        }
         
         if (userDataArray && userDataArray.length > 0) {
           const userData = userDataArray[0]
@@ -53,12 +71,13 @@ export default function DashboardPage() {
           setAgency(agencyData)
           loadStats(userData)
         } else {
-          console.log('Dashboard: No user record found, redirecting to login')
-          window.location.href = '/login'
+          console.log('Dashboard: No user record found in database')
+          // User exists in auth but not in users table - this is a data issue
+          setLoading(false)
           return
         }
       } else {
-        console.log('Dashboard: User in store, loading stats')
+        console.log('Dashboard: User in store matches auth, loading stats')
         loadStats(user)
       }
     }

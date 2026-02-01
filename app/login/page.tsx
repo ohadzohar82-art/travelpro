@@ -55,17 +55,22 @@ export default function LoginPage() {
         : userData.agencies
       setAgency(agency)
 
-      console.log('Login successful, redirecting to /app...')
+      console.log('Login successful, user and agency set:', { user: userData, agency })
+      
+      // Verify session is set before redirecting
+      const { data: { session } } = await supabase.auth.getSession()
+      console.log('Session after login:', session)
+      
       toast.success('התחברת בהצלחה!', {
-        duration: 1000,
+        duration: 1500,
       })
       
-      // Don't set loading to false - let the redirect happen
-      // Use replace to avoid back button issues
+      // Wait longer to ensure cookies are fully set
       setTimeout(() => {
-        console.log('Executing redirect...')
-        window.location.replace('/app')
-      }, 1000)
+        console.log('Executing redirect to /app...')
+        // Use href instead of replace to allow back navigation
+        window.location.href = '/app'
+      }, 1500)
     } catch (error: any) {
       console.error('Login error:', error)
       toast.error(error.message || 'שגיאה בהתחברות')
