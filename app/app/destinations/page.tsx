@@ -10,10 +10,16 @@ import { useAuthStore } from '@/store/useAuthStore'
 import type { Database } from '@/types/database'
 
 type Destination = Database['public']['Tables']['destinations']['Row']
+type Country = Database['public']['Tables']['countries']['Row']
+
+// Type for destination with joined country
+type DestinationWithCountry = Destination & {
+  countries?: Country | Country[] | null
+}
 
 export default function DestinationsPage() {
   const { user } = useAuthStore()
-  const [destinations, setDestinations] = useState<Destination[]>([])
+  const [destinations, setDestinations] = useState<DestinationWithCountry[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
 
@@ -41,7 +47,7 @@ export default function DestinationsPage() {
       const { data, error } = await query
 
       if (error) throw error
-      setDestinations(data || [])
+      setDestinations((data as DestinationWithCountry[]) || [])
     } catch (error) {
       console.error('Error loading destinations:', error)
     } finally {
