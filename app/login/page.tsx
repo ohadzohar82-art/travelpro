@@ -74,13 +74,19 @@ export default function LoginPage() {
       setAgency(agency)
 
       console.log('User data loaded, redirecting...')
-      
-      // CRITICAL: Redirect IMMEDIATELY, don't wait for toast
-      // Use replace to prevent back button issues
-      window.location.replace('/app')
-      
-      // Show toast after redirect is initiated
       toast.success('התחברת בהצלחה!')
+      
+      // Use Next.js router with refresh to ensure server-side navigation
+      router.push('/app')
+      router.refresh()
+      
+      // Fallback: force redirect if router doesn't work
+      setTimeout(() => {
+        if (window.location.pathname !== '/app') {
+          console.log('Router failed, using window.location')
+          window.location.href = '/app'
+        }
+      }, 100)
       
     } catch (error: any) {
       console.error('=== LOGIN ERROR ===', error)
