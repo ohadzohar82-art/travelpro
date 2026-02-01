@@ -23,8 +23,28 @@ export default function DashboardPage() {
     const checkAuth = async () => {
       const supabase = createClient()
       
-      // Check authentication
-      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
+      // Wait a bit for cookies to be set after login redirect
+      await new Promise(resolve => setTimeout(resolve, 100))
+      
+      // Check authentication with retry
+      let authUser = null
+      let retries = 3
+      
+      while (retries > 0 && !authUser) {
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
+        
+        if (user) {
+          authUser = user
+          break
+        }
+        
+        if (authError && retries > 1) {
+          // Wait before retry
+          await new Promise(resolve => setTimeout(resolve, 200))
+        }
+        
+        retries--
+      }
       
       if (!authUser) {
         router.push('/login')
