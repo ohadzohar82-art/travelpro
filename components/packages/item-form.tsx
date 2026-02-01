@@ -17,10 +17,6 @@ interface ItemFormProps {
 }
 
 export function ItemForm({ item, onSave, onCancel }: ItemFormProps) {
-  if (!item || !item.id) {
-    return null
-  }
-
   const [formData, setFormData] = useState({
     title: item?.title || '',
     subtitle: item?.subtitle || '',
@@ -34,7 +30,16 @@ export function ItemForm({ item, onSave, onCancel }: ItemFormProps) {
     data: item?.data || {},
   })
 
+  if (!item || !item.id) {
+    return null
+  }
+
   const handleSave = async () => {
+    if (!item || !item.id) {
+      toast.error('פריט לא תקין')
+      return
+    }
+
     try {
       const supabase = createClient()
       const { data, error } = await supabase
@@ -56,6 +61,9 @@ export function ItemForm({ item, onSave, onCancel }: ItemFormProps) {
         .single()
 
       if (error) throw error
+      if (!data) {
+        throw new Error('Failed to update item')
+      }
       onSave(data)
       toast.success('פריט עודכן בהצלחה!')
     } catch (error: any) {
