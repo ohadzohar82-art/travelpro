@@ -199,7 +199,7 @@ export default function SettingsPage() {
                   className="w-full"
                   placeholder="USD"
                 />
-                <p className="text-xs text-gray-500 mt-1">קוד מטבע (USD, EUR, ILS וכו')</p>
+                <p className="text-xs text-gray-500 mt-1">קוד מטבע (USD, EUR, ILS וכו&apos;)</p>
               </div>
             </div>
             
