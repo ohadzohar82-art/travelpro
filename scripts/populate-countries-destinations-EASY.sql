@@ -1,11 +1,11 @@
 -- ============================================
--- הוראות: החלף את 'YOUR_AGENCY_ID' במזהה הסוכנות שלך
+-- הוראות: החלף את '4af931ea-e4f8-4728-9d82-30de9b2f2b14' במזהה הסוכנות שלך
 -- למציאת המזהה: SELECT id FROM agencies LIMIT 1;
 -- ============================================
 
 -- שלב 1: מצא את המזהה שלך והחלף אותו כאן
 -- לדוגמה: אם המזהה שלך הוא 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'
--- החלף את כל המופעים של 'YOUR_AGENCY_ID' במזהה הזה
+-- החלף את כל המופעים של '4af931ea-e4f8-4728-9d82-30de9b2f2b14' במזהה הזה
 
 -- שלב 2: העתק את כל הקוד למטה והדבק ב-Supabase SQL Editor
 -- שלב 3: לחץ Run
@@ -16,26 +16,26 @@
 
 INSERT INTO countries (agency_id, name, name_en, code, currency, currency_symbol, language, timezone, is_active)
 VALUES
-  ('YOUR_AGENCY_ID', 'ישראל', 'Israel', 'IL', 'ILS', '₪', 'he', 'Asia/Jerusalem', true),
-  ('YOUR_AGENCY_ID', 'תאילנד', 'Thailand', 'TH', 'THB', '฿', 'th', 'Asia/Bangkok', true),
-  ('YOUR_AGENCY_ID', 'יוון', 'Greece', 'GR', 'EUR', '€', 'el', 'Europe/Athens', true),
-  ('YOUR_AGENCY_ID', 'איטליה', 'Italy', 'IT', 'EUR', '€', 'it', 'Europe/Rome', true),
-  ('YOUR_AGENCY_ID', 'ספרד', 'Spain', 'ES', 'EUR', '€', 'es', 'Europe/Madrid', true),
-  ('YOUR_AGENCY_ID', 'פורטוגל', 'Portugal', 'PT', 'EUR', '€', 'pt', 'Europe/Lisbon', true),
-  ('YOUR_AGENCY_ID', 'טורקיה', 'Turkey', 'TR', 'TRY', '₺', 'tr', 'Europe/Istanbul', true),
-  ('YOUR_AGENCY_ID', 'צרפת', 'France', 'FR', 'EUR', '€', 'fr', 'Europe/Paris', true),
-  ('YOUR_AGENCY_ID', 'בריטניה', 'United Kingdom', 'GB', 'GBP', '£', 'en', 'Europe/London', true),
-  ('YOUR_AGENCY_ID', 'ארצות הברית', 'United States', 'US', 'USD', '$', 'en', 'America/New_York', true),
-  ('YOUR_AGENCY_ID', 'יפן', 'Japan', 'JP', 'JPY', '¥', 'ja', 'Asia/Tokyo', true),
-  ('YOUR_AGENCY_ID', 'דובאי', 'United Arab Emirates', 'AE', 'AED', 'د.إ', 'ar', 'Asia/Dubai', true),
-  ('YOUR_AGENCY_ID', 'מצרים', 'Egypt', 'EG', 'EGP', '£', 'ar', 'Africa/Cairo', true),
-  ('YOUR_AGENCY_ID', 'מרוקו', 'Morocco', 'MA', 'MAD', 'د.م.', 'ar', 'Africa/Casablanca', true),
-  ('YOUR_AGENCY_ID', 'הודו', 'India', 'IN', 'INR', '₹', 'hi', 'Asia/Kolkata', true),
-  ('YOUR_AGENCY_ID', 'סין', 'China', 'CN', 'CNY', '¥', 'zh', 'Asia/Shanghai', true),
-  ('YOUR_AGENCY_ID', 'אוסטרליה', 'Australia', 'AU', 'AUD', 'A$', 'en', 'Australia/Sydney', true),
-  ('YOUR_AGENCY_ID', 'ניו זילנד', 'New Zealand', 'NZ', 'NZD', 'NZ$', 'en', 'Pacific/Auckland', true),
-  ('YOUR_AGENCY_ID', 'דרום אפריקה', 'South Africa', 'ZA', 'ZAR', 'R', 'en', 'Africa/Johannesburg', true),
-  ('YOUR_AGENCY_ID', 'ברזיל', 'Brazil', 'BR', 'BRL', 'R$', 'pt', 'America/Sao_Paulo', true)
+  ('4af931ea-e4f8-4728-9d82-30de9b2f2b14', 'ישראל', 'Israel', 'IL', 'ILS', '₪', 'he', 'Asia/Jerusalem', true),
+  ('4af931ea-e4f8-4728-9d82-30de9b2f2b14', 'תאילנד', 'Thailand', 'TH', 'THB', '฿', 'th', 'Asia/Bangkok', true),
+  ('4af931ea-e4f8-4728-9d82-30de9b2f2b14', 'יוון', 'Greece', 'GR', 'EUR', '€', 'el', 'Europe/Athens', true),
+  ('4af931ea-e4f8-4728-9d82-30de9b2f2b14', 'איטליה', 'Italy', 'IT', 'EUR', '€', 'it', 'Europe/Rome', true),
+  ('4af931ea-e4f8-4728-9d82-30de9b2f2b14', 'ספרד', 'Spain', 'ES', 'EUR', '€', 'es', 'Europe/Madrid', true),
+  ('4af931ea-e4f8-4728-9d82-30de9b2f2b14', 'פורטוגל', 'Portugal', 'PT', 'EUR', '€', 'pt', 'Europe/Lisbon', true),
+  ('4af931ea-e4f8-4728-9d82-30de9b2f2b14', 'טורקיה', 'Turkey', 'TR', 'TRY', '₺', 'tr', 'Europe/Istanbul', true),
+  ('4af931ea-e4f8-4728-9d82-30de9b2f2b14', 'צרפת', 'France', 'FR', 'EUR', '€', 'fr', 'Europe/Paris', true),
+  ('4af931ea-e4f8-4728-9d82-30de9b2f2b14', 'בריטניה', 'United Kingdom', 'GB', 'GBP', '£', 'en', 'Europe/London', true),
+  ('4af931ea-e4f8-4728-9d82-30de9b2f2b14', 'ארצות הברית', 'United States', 'US', 'USD', '$', 'en', 'America/New_York', true),
+  ('4af931ea-e4f8-4728-9d82-30de9b2f2b14', 'יפן', 'Japan', 'JP', 'JPY', '¥', 'ja', 'Asia/Tokyo', true),
+  ('4af931ea-e4f8-4728-9d82-30de9b2f2b14', 'דובאי', 'United Arab Emirates', 'AE', 'AED', 'د.إ', 'ar', 'Asia/Dubai', true),
+  ('4af931ea-e4f8-4728-9d82-30de9b2f2b14', 'מצרים', 'Egypt', 'EG', 'EGP', '£', 'ar', 'Africa/Cairo', true),
+  ('4af931ea-e4f8-4728-9d82-30de9b2f2b14', 'מרוקו', 'Morocco', 'MA', 'MAD', 'د.م.', 'ar', 'Africa/Casablanca', true),
+  ('4af931ea-e4f8-4728-9d82-30de9b2f2b14', 'הודו', 'India', 'IN', 'INR', '₹', 'hi', 'Asia/Kolkata', true),
+  ('4af931ea-e4f8-4728-9d82-30de9b2f2b14', 'סין', 'China', 'CN', 'CNY', '¥', 'zh', 'Asia/Shanghai', true),
+  ('4af931ea-e4f8-4728-9d82-30de9b2f2b14', 'אוסטרליה', 'Australia', 'AU', 'AUD', 'A$', 'en', 'Australia/Sydney', true),
+  ('4af931ea-e4f8-4728-9d82-30de9b2f2b14', 'ניו זילנד', 'New Zealand', 'NZ', 'NZD', 'NZ$', 'en', 'Pacific/Auckland', true),
+  ('4af931ea-e4f8-4728-9d82-30de9b2f2b14', 'דרום אפריקה', 'South Africa', 'ZA', 'ZAR', 'R', 'en', 'Africa/Johannesburg', true),
+  ('4af931ea-e4f8-4728-9d82-30de9b2f2b14', 'ברזיל', 'Brazil', 'BR', 'BRL', 'R$', 'pt', 'America/Sao_Paulo', true)
 ON CONFLICT DO NOTHING;
 
 -- ============================================
@@ -45,7 +45,7 @@ ON CONFLICT DO NOTHING;
 -- יעדים בתאילנד
 INSERT INTO destinations (agency_id, country_id, name, name_en, region, airport_code, is_active)
 SELECT 
-  'YOUR_AGENCY_ID',
+  '4af931ea-e4f8-4728-9d82-30de9b2f2b14',
   id,
   'בנגקוק',
   'Bangkok',
@@ -53,13 +53,13 @@ SELECT
   'BKK',
   true
 FROM countries 
-WHERE code = 'TH' AND agency_id = 'YOUR_AGENCY_ID' 
+WHERE code = 'TH' AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14' 
 LIMIT 1
 ON CONFLICT DO NOTHING;
 
 INSERT INTO destinations (agency_id, country_id, name, name_en, region, airport_code, is_active)
 SELECT 
-  'YOUR_AGENCY_ID',
+  '4af931ea-e4f8-4728-9d82-30de9b2f2b14',
   id,
   'פוקט',
   'Phuket',
@@ -67,13 +67,13 @@ SELECT
   'HKT',
   true
 FROM countries 
-WHERE code = 'TH' AND agency_id = 'YOUR_AGENCY_ID' 
+WHERE code = 'TH' AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14' 
 LIMIT 1
 ON CONFLICT DO NOTHING;
 
 INSERT INTO destinations (agency_id, country_id, name, name_en, region, airport_code, is_active)
 SELECT 
-  'YOUR_AGENCY_ID',
+  '4af931ea-e4f8-4728-9d82-30de9b2f2b14',
   id,
   'ציאנג מאי',
   'Chiang Mai',
@@ -81,14 +81,14 @@ SELECT
   'CNX',
   true
 FROM countries 
-WHERE code = 'TH' AND agency_id = 'YOUR_AGENCY_ID' 
+WHERE code = 'TH' AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14' 
 LIMIT 1
 ON CONFLICT DO NOTHING;
 
 -- יעדים ביוון
 INSERT INTO destinations (agency_id, country_id, name, name_en, region, airport_code, is_active)
 SELECT 
-  'YOUR_AGENCY_ID',
+  '4af931ea-e4f8-4728-9d82-30de9b2f2b14',
   id,
   'אתונה',
   'Athens',
@@ -96,13 +96,13 @@ SELECT
   'ATH',
   true
 FROM countries 
-WHERE code = 'GR' AND agency_id = 'YOUR_AGENCY_ID' 
+WHERE code = 'GR' AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14' 
 LIMIT 1
 ON CONFLICT DO NOTHING;
 
 INSERT INTO destinations (agency_id, country_id, name, name_en, region, airport_code, is_active)
 SELECT 
-  'YOUR_AGENCY_ID',
+  '4af931ea-e4f8-4728-9d82-30de9b2f2b14',
   id,
   'סנטוריני',
   'Santorini',
@@ -110,13 +110,13 @@ SELECT
   'JTR',
   true
 FROM countries 
-WHERE code = 'GR' AND agency_id = 'YOUR_AGENCY_ID' 
+WHERE code = 'GR' AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14' 
 LIMIT 1
 ON CONFLICT DO NOTHING;
 
 INSERT INTO destinations (agency_id, country_id, name, name_en, region, airport_code, is_active)
 SELECT 
-  'YOUR_AGENCY_ID',
+  '4af931ea-e4f8-4728-9d82-30de9b2f2b14',
   id,
   'מיקונוס',
   'Mykonos',
@@ -124,14 +124,14 @@ SELECT
   'JMK',
   true
 FROM countries 
-WHERE code = 'GR' AND agency_id = 'YOUR_AGENCY_ID' 
+WHERE code = 'GR' AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14' 
 LIMIT 1
 ON CONFLICT DO NOTHING;
 
 -- יעדים באיטליה
 INSERT INTO destinations (agency_id, country_id, name, name_en, region, airport_code, is_active)
 SELECT 
-  'YOUR_AGENCY_ID',
+  '4af931ea-e4f8-4728-9d82-30de9b2f2b14',
   id,
   'רומא',
   'Rome',
@@ -139,13 +139,13 @@ SELECT
   'FCO',
   true
 FROM countries 
-WHERE code = 'IT' AND agency_id = 'YOUR_AGENCY_ID' 
+WHERE code = 'IT' AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14' 
 LIMIT 1
 ON CONFLICT DO NOTHING;
 
 INSERT INTO destinations (agency_id, country_id, name, name_en, region, airport_code, is_active)
 SELECT 
-  'YOUR_AGENCY_ID',
+  '4af931ea-e4f8-4728-9d82-30de9b2f2b14',
   id,
   'ונציה',
   'Venice',
@@ -153,13 +153,13 @@ SELECT
   'VCE',
   true
 FROM countries 
-WHERE code = 'IT' AND agency_id = 'YOUR_AGENCY_ID' 
+WHERE code = 'IT' AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14' 
 LIMIT 1
 ON CONFLICT DO NOTHING;
 
 INSERT INTO destinations (agency_id, country_id, name, name_en, region, airport_code, is_active)
 SELECT 
-  'YOUR_AGENCY_ID',
+  '4af931ea-e4f8-4728-9d82-30de9b2f2b14',
   id,
   'מילאנו',
   'Milan',
@@ -167,13 +167,13 @@ SELECT
   'MXP',
   true
 FROM countries 
-WHERE code = 'IT' AND agency_id = 'YOUR_AGENCY_ID' 
+WHERE code = 'IT' AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14' 
 LIMIT 1
 ON CONFLICT DO NOTHING;
 
 INSERT INTO destinations (agency_id, country_id, name, name_en, region, airport_code, is_active)
 SELECT 
-  'YOUR_AGENCY_ID',
+  '4af931ea-e4f8-4728-9d82-30de9b2f2b14',
   id,
   'פירנצה',
   'Florence',
@@ -181,14 +181,14 @@ SELECT
   'FLR',
   true
 FROM countries 
-WHERE code = 'IT' AND agency_id = 'YOUR_AGENCY_ID' 
+WHERE code = 'IT' AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14' 
 LIMIT 1
 ON CONFLICT DO NOTHING;
 
 -- יעדים בספרד
 INSERT INTO destinations (agency_id, country_id, name, name_en, region, airport_code, is_active)
 SELECT 
-  'YOUR_AGENCY_ID',
+  '4af931ea-e4f8-4728-9d82-30de9b2f2b14',
   id,
   'מדריד',
   'Madrid',
@@ -196,13 +196,13 @@ SELECT
   'MAD',
   true
 FROM countries 
-WHERE code = 'ES' AND agency_id = 'YOUR_AGENCY_ID' 
+WHERE code = 'ES' AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14' 
 LIMIT 1
 ON CONFLICT DO NOTHING;
 
 INSERT INTO destinations (agency_id, country_id, name, name_en, region, airport_code, is_active)
 SELECT 
-  'YOUR_AGENCY_ID',
+  '4af931ea-e4f8-4728-9d82-30de9b2f2b14',
   id,
   'ברצלונה',
   'Barcelona',
@@ -210,13 +210,13 @@ SELECT
   'BCN',
   true
 FROM countries 
-WHERE code = 'ES' AND agency_id = 'YOUR_AGENCY_ID' 
+WHERE code = 'ES' AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14' 
 LIMIT 1
 ON CONFLICT DO NOTHING;
 
 INSERT INTO destinations (agency_id, country_id, name, name_en, region, airport_code, is_active)
 SELECT 
-  'YOUR_AGENCY_ID',
+  '4af931ea-e4f8-4728-9d82-30de9b2f2b14',
   id,
   'סביליה',
   'Seville',
@@ -224,14 +224,14 @@ SELECT
   'SVQ',
   true
 FROM countries 
-WHERE code = 'ES' AND agency_id = 'YOUR_AGENCY_ID' 
+WHERE code = 'ES' AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14' 
 LIMIT 1
 ON CONFLICT DO NOTHING;
 
 -- יעדים בטורקיה
 INSERT INTO destinations (agency_id, country_id, name, name_en, region, airport_code, is_active)
 SELECT 
-  'YOUR_AGENCY_ID',
+  '4af931ea-e4f8-4728-9d82-30de9b2f2b14',
   id,
   'איסטנבול',
   'Istanbul',
@@ -239,13 +239,13 @@ SELECT
   'IST',
   true
 FROM countries 
-WHERE code = 'TR' AND agency_id = 'YOUR_AGENCY_ID' 
+WHERE code = 'TR' AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14' 
 LIMIT 1
 ON CONFLICT DO NOTHING;
 
 INSERT INTO destinations (agency_id, country_id, name, name_en, region, airport_code, is_active)
 SELECT 
-  'YOUR_AGENCY_ID',
+  '4af931ea-e4f8-4728-9d82-30de9b2f2b14',
   id,
   'קפדוקיה',
   'Cappadocia',
@@ -253,13 +253,13 @@ SELECT
   'NAV',
   true
 FROM countries 
-WHERE code = 'TR' AND agency_id = 'YOUR_AGENCY_ID' 
+WHERE code = 'TR' AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14' 
 LIMIT 1
 ON CONFLICT DO NOTHING;
 
 INSERT INTO destinations (agency_id, country_id, name, name_en, region, airport_code, is_active)
 SELECT 
-  'YOUR_AGENCY_ID',
+  '4af931ea-e4f8-4728-9d82-30de9b2f2b14',
   id,
   'אנטליה',
   'Antalya',
@@ -267,14 +267,14 @@ SELECT
   'AYT',
   true
 FROM countries 
-WHERE code = 'TR' AND agency_id = 'YOUR_AGENCY_ID' 
+WHERE code = 'TR' AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14' 
 LIMIT 1
 ON CONFLICT DO NOTHING;
 
 -- יעדים בדובאי
 INSERT INTO destinations (agency_id, country_id, name, name_en, region, airport_code, is_active)
 SELECT 
-  'YOUR_AGENCY_ID',
+  '4af931ea-e4f8-4728-9d82-30de9b2f2b14',
   id,
   'דובאי',
   'Dubai',
@@ -282,13 +282,13 @@ SELECT
   'DXB',
   true
 FROM countries 
-WHERE code = 'AE' AND agency_id = 'YOUR_AGENCY_ID' 
+WHERE code = 'AE' AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14' 
 LIMIT 1
 ON CONFLICT DO NOTHING;
 
 INSERT INTO destinations (agency_id, country_id, name, name_en, region, airport_code, is_active)
 SELECT 
-  'YOUR_AGENCY_ID',
+  '4af931ea-e4f8-4728-9d82-30de9b2f2b14',
   id,
   'אבו דאבי',
   'Abu Dhabi',
@@ -296,14 +296,14 @@ SELECT
   'AUH',
   true
 FROM countries 
-WHERE code = 'AE' AND agency_id = 'YOUR_AGENCY_ID' 
+WHERE code = 'AE' AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14' 
 LIMIT 1
 ON CONFLICT DO NOTHING;
 
 -- יעדים בישראל
 INSERT INTO destinations (agency_id, country_id, name, name_en, region, airport_code, is_active)
 SELECT 
-  'YOUR_AGENCY_ID',
+  '4af931ea-e4f8-4728-9d82-30de9b2f2b14',
   id,
   'תל אביב',
   'Tel Aviv',
@@ -311,13 +311,13 @@ SELECT
   'TLV',
   true
 FROM countries 
-WHERE code = 'IL' AND agency_id = 'YOUR_AGENCY_ID' 
+WHERE code = 'IL' AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14' 
 LIMIT 1
 ON CONFLICT DO NOTHING;
 
 INSERT INTO destinations (agency_id, country_id, name, name_en, region, airport_code, is_active)
 SELECT 
-  'YOUR_AGENCY_ID',
+  '4af931ea-e4f8-4728-9d82-30de9b2f2b14',
   id,
   'ירושלים',
   'Jerusalem',
@@ -325,13 +325,13 @@ SELECT
   'JRS',
   true
 FROM countries 
-WHERE code = 'IL' AND agency_id = 'YOUR_AGENCY_ID' 
+WHERE code = 'IL' AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14' 
 LIMIT 1
 ON CONFLICT DO NOTHING;
 
 INSERT INTO destinations (agency_id, country_id, name, name_en, region, airport_code, is_active)
 SELECT 
-  'YOUR_AGENCY_ID',
+  '4af931ea-e4f8-4728-9d82-30de9b2f2b14',
   id,
   'אילת',
   'Eilat',
@@ -339,7 +339,7 @@ SELECT
   'ETH',
   true
 FROM countries 
-WHERE code = 'IL' AND agency_id = 'YOUR_AGENCY_ID' 
+WHERE code = 'IL' AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14' 
 LIMIT 1
 ON CONFLICT DO NOTHING;
 
@@ -347,5 +347,5 @@ ON CONFLICT DO NOTHING;
 -- סיום
 -- ============================================
 -- אחרי הרצת הסקריפט, בדוק שהנתונים נוצרו:
--- SELECT COUNT(*) FROM countries WHERE agency_id = 'YOUR_AGENCY_ID';
--- SELECT COUNT(*) FROM destinations WHERE agency_id = 'YOUR_AGENCY_ID';
+-- SELECT COUNT(*) FROM countries WHERE agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14';
+-- SELECT COUNT(*) FROM destinations WHERE agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14';
