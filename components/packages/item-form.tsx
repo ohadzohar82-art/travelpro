@@ -17,17 +17,21 @@ interface ItemFormProps {
 }
 
 export function ItemForm({ item, onSave, onCancel }: ItemFormProps) {
+  if (!item || !item.id) {
+    return null
+  }
+
   const [formData, setFormData] = useState({
-    title: item.title,
-    subtitle: item.subtitle || '',
-    description: item.description || '',
-    time_start: item.time_start || '',
-    time_end: item.time_end || '',
-    duration: item.duration || '',
-    price: item.price || 0,
-    price_per: item.price_per || 'total',
-    notes: item.notes || '',
-    data: item.data || {},
+    title: item?.title || '',
+    subtitle: item?.subtitle || '',
+    description: item?.description || '',
+    time_start: item?.time_start || '',
+    time_end: item?.time_end || '',
+    duration: item?.duration || '',
+    price: item?.price || 0,
+    price_per: item?.price_per || 'total',
+    notes: item?.notes || '',
+    data: item?.data || {},
   })
 
   const handleSave = async () => {

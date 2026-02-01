@@ -201,7 +201,28 @@ export function PackageEditor({ packageId }: { packageId: string }) {
   }
 
   if (!pkg) {
-    return <div>חבילה לא נמצאה</div>
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Card>
+          <CardContent className="p-6">
+            <p className="text-gray-500">חבילה לא נמצאה</p>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  // Safety check - ensure pkg has required properties
+  if (!pkg.id || !pkg.agency_id) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Card>
+          <CardContent className="p-6">
+            <p className="text-red-500">שגיאה: נתוני החבילה לא תקינים</p>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   return (

@@ -106,13 +106,13 @@ export function ItemTypesPalette({ packageId, days }: ItemTypesPaletteProps) {
               <span className="flex-1 text-sm font-medium">{itemType.label}</span>
             </div>
             <div className="mr-6 space-y-1">
-              {days.map((day) => (
+              {days.filter(day => day && day.id).map((day) => (
                 <button
                   key={day.id}
                   onClick={() => handleAddItem(itemType.type, day.id)}
                   className="w-full text-right text-xs text-primary hover:underline py-1"
                 >
-                  + הוסף ליום {day.day_number}
+                  + הוסף ליום {day?.day_number || 0}
                 </button>
               ))}
             </div>
