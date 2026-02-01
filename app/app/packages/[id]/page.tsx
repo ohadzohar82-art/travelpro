@@ -1,34 +1,30 @@
 'use client'
 
 import { PackageEditor } from '@/components/packages/package-editor'
-import { use, Suspense, useMemo } from 'react'
+import { use, Suspense } from 'react'
 import { ErrorBoundary } from '@/components/ui/error-boundary'
+import { useParams } from 'next/navigation'
 
-function PackageEditorWrapper({ params }: { params: Promise<{ id: string }> }) {
-  try {
-    const resolvedParams = use(params)
-    const id = resolvedParams?.id
-    
-    if (!id || typeof id !== 'string') {
-      return (
-        <div className="flex items-center justify-center h-64">
-          <div className="text-lg text-gray-500">מזהה חבילה לא תקין</div>
-        </div>
-      )
-    }
-    
-    return <PackageEditor packageId={id} />
-  } catch (error: any) {
-    console.error('Error resolving params:', error)
+function PackageEditorWrapper() {
+  const params = useParams()
+  const id = params?.id as string | undefined
+  
+  if (!id || typeof id !== 'string') {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-lg text-red-500">שגיאה בטעינת החבילה</div>
+        <div className="text-center">
+          <div className="text-lg font-semibold text-gray-900 mb-2">מזהה חבילה לא תקין</div>
+          <div className="text-sm text-gray-500">המזהה שהועבר אינו תקין</div>
+        </div>
       </div>
     )
   }
+  
+  return <PackageEditor packageId={id} />
 }
 
 export default function PackageEditPage({ params }: { params: Promise<{ id: string }> }) {
+  // Use useParams hook instead of use() for better compatibility
   return (
     <ErrorBoundary>
       <Suspense fallback={
@@ -36,7 +32,7 @@ export default function PackageEditPage({ params }: { params: Promise<{ id: stri
           <div className="text-lg text-gray-500">טוען...</div>
         </div>
       }>
-        <PackageEditorWrapper params={params} />
+        <PackageEditorWrapper />
       </Suspense>
     </ErrorBoundary>
   )
