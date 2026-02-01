@@ -43,10 +43,9 @@ export async function updateSession(request: NextRequest) {
     error: authError,
   } = await supabase.auth.getUser()
 
-  // For /app routes, let the client-side handle authentication
-  // This avoids cookie timing issues after login
+  // TEMPORARY: Allow /app routes without auth check
   if (request.nextUrl.pathname.startsWith('/app')) {
-    // Always allow /app routes through - client will check auth
+    // Always allow /app routes through - auth disabled for now
     return supabaseResponse
   }
 

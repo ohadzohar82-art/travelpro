@@ -20,129 +20,97 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const checkAuth = async () => {
-      console.log('=== DASHBOARD AUTH CHECK START ===')
-      
+    // TEMPORARY: Skip auth check, just load dashboard
+    console.log('Dashboard loading (auth disabled)')
+    
+    // Try to load user if available, but don't require it
+    const loadData = async () => {
       try {
         const supabase = createClient()
+        const { data: { session } } = await supabase.auth.getSession()
         
-        // Wait longer for cookies to propagate after redirect
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        
-        // Try multiple times - cookies might not be ready immediately
-        let foundUser = false
-        for (let attempt = 0; attempt < 10; attempt++) {
-          console.log(`Auth check attempt ${attempt + 1}/10`)
+        if (session?.user) {
+          // User is logged in, load their data
+          const { data: userDataArray } = await supabase
+            .from('users')
+            .select('*, agencies(*)')
+            .eq('id', session.user.id)
           
-          const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-          console.log('getSession:', { hasSession: !!session, hasUser: !!session?.user, error: sessionError?.message })
-          
-          if (session?.user) {
-            console.log('✅ Session found!', session.user.id)
-            await loadUserData(supabase, session.user.id)
-            foundUser = true
-            break
-          }
-          
-          const { data: { user: authUser }, error: userError } = await supabase.auth.getUser()
-          console.log('getUser:', { hasUser: !!authUser, error: userError?.message })
-          
-          if (authUser) {
-            console.log('✅ User found via getUser!', authUser.id)
-            await loadUserData(supabase, authUser.id)
-            foundUser = true
-            break
-          }
-          
-          // Wait before next attempt
-          if (attempt < 9) {
-            await new Promise(resolve => setTimeout(resolve, 500))
+          if (userDataArray && userDataArray.length > 0) {
+            const userData = userDataArray[0]
+            setUser(userData)
+            const agencyData = Array.isArray(userData.agencies) 
+              ? userData.agencies[0] 
+              : userData.agencies
+            setAgency(agencyData)
+            loadStats(userData)
+            return
           }
         }
         
-        if (!foundUser) {
-          console.error('❌ No user found after all attempts')
-          router.push('/login')
-        }
-        
+        // No user or not logged in - show dashboard with empty stats
+        setLoading(false)
       } catch (error) {
-        console.error('=== DASHBOARD AUTH ERROR ===', error)
-        // Don't redirect on error - might be temporary
+        console.error('Error loading data:', error)
         setLoading(false)
       }
     }
     
-    const loadUserData = async (supabase: ReturnType<typeof createClient>, userId: string) => {
-      console.log('Loading user data for:', userId)
-      
-      const { data: userDataArray, error: userError } = await supabase
-        .from('users')
-        .select('*, agencies(*)')
-        .eq('id', userId)
-      
-      if (userError) {
-        console.error('Failed to load user data:', userError)
-        router.push('/login')
-        return
-      }
-      
-      if (!userDataArray || userDataArray.length === 0) {
-        console.error('No user data found')
-        router.push('/login')
-        return
-      }
-      
-      const userData = userDataArray[0]
-      setUser(userData)
-      const agencyData = Array.isArray(userData.agencies) 
-        ? userData.agencies[0] 
-        : userData.agencies
-      setAgency(agencyData)
-      
-      console.log('User data loaded, loading stats...')
-      loadStats(userData)
-    }
-    
-    checkAuth()
+    loadData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const loadStats = async (currentUser = user) => {
-    if (!currentUser) {
-      setLoading(false)
-      return
-    }
-    
     try {
       const supabase = createClient()
-      const { data: packages } = await supabase
-        .from('packages')
-        .select('status, total_price')
-        .eq('agency_id', currentUser.agency_id)
+      
+      if (currentUser?.agency_id) {
+        const { data: packages } = await supabase
+          .from('packages')
+          .select('status, total_price')
+          .eq('agency_id', currentUser.agency_id)
 
-      const { data: clients } = await supabase
-        .from('clients')
-        .select('id')
-        .eq('agency_id', currentUser.agency_id)
+        const { data: clients } = await supabase
+          .from('clients')
+          .select('id')
+          .eq('agency_id', currentUser.agency_id)
 
-      const packagesByStatus = {
-        draft: packages?.filter((p) => p.status === 'draft').length || 0,
-        sent: packages?.filter((p) => p.status === 'sent').length || 0,
-        confirmed: packages?.filter((p) => p.status === 'confirmed').length || 0,
-        cancelled: packages?.filter((p) => p.status === 'cancelled').length || 0,
+        const packagesByStatus = {
+          draft: packages?.filter((p) => p.status === 'draft').length || 0,
+          sent: packages?.filter((p) => p.status === 'sent').length || 0,
+          confirmed: packages?.filter((p) => p.status === 'confirmed').length || 0,
+          cancelled: packages?.filter((p) => p.status === 'cancelled').length || 0,
+        }
+
+        const totalRevenue = packages?.reduce((sum, p) => sum + (p.total_price || 0), 0) || 0
+
+        setStats({
+          total_packages: packages?.length || 0,
+          packages_by_status: packagesByStatus,
+          total_clients: clients?.length || 0,
+          total_revenue: totalRevenue,
+          revenue_this_month: totalRevenue,
+        })
+      } else {
+        // No user - show empty stats
+        setStats({
+          total_packages: 0,
+          packages_by_status: { draft: 0, sent: 0, confirmed: 0, cancelled: 0 },
+          total_clients: 0,
+          total_revenue: 0,
+          revenue_this_month: 0,
+        })
       }
-
-      const totalRevenue = packages?.reduce((sum, p) => sum + (p.total_price || 0), 0) || 0
-
-      setStats({
-        total_packages: packages?.length || 0,
-        packages_by_status: packagesByStatus,
-        total_clients: clients?.length || 0,
-        total_revenue: totalRevenue,
-        revenue_this_month: totalRevenue,
-      })
     } catch (error) {
       console.error('Error loading stats:', error)
+      // Show empty stats on error
+      setStats({
+        total_packages: 0,
+        packages_by_status: { draft: 0, sent: 0, confirmed: 0, cancelled: 0 },
+        total_clients: 0,
+        total_revenue: 0,
+        revenue_this_month: 0,
+      })
     } finally {
       setLoading(false)
     }
@@ -160,7 +128,7 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">לוח בקרה</h1>
-        <p className="text-gray-500 mt-2">ברוך הבא, {user?.full_name}</p>
+        <p className="text-gray-500 mt-2">ברוך הבא{user?.full_name ? `, ${user.full_name}` : ''}</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
