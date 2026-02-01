@@ -41,7 +41,7 @@ export default function NewPackagePage() {
             currentUser = userDataArray
             
             // Load agency separately if we have agency_id
-            if (currentUser.agency_id && !currentAgency) {
+            if (currentUser && currentUser.agency_id && !currentAgency) {
               const { data: agencyData } = await supabase
                 .from('agencies')
                 .select('*')
