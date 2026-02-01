@@ -1,6 +1,19 @@
 # הגדרת Supabase Storage להעלאת תמונות
 
-## שלב 1: צור Buckets
+## 🚀 דרך מהירה - הכל בסקריפט אחד!
+
+**הרץ את הקובץ:** `SUPABASE_STORAGE_COMPLETE_SETUP.sql` ב-SQL Editor
+
+הסקריפט הזה:
+- ✅ יוצר את כל ה-buckets אוטומטית
+- ✅ מגדיר את כל ה-RLS policies
+- ✅ מאפשר גישה ציבורית לתמונות
+
+---
+
+## 📋 דרך ידנית (אם הסקריפט לא עובד)
+
+### שלב 1: צור Buckets
 
 1. היכנס ל-Supabase Dashboard: https://app.supabase.com
 2. בחר את הפרויקט שלך
@@ -29,7 +42,7 @@
 
 ---
 
-## שלב 2: הגדר RLS Policies
+### שלב 2: הגדר RLS Policies
 
 לאחר יצירת ה-buckets, הרץ את הסקריפט הבא ב-SQL Editor:
 
