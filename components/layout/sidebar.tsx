@@ -15,6 +15,8 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
+import { useAuthStore } from '@/store/useAuthStore'
+import Image from 'next/image'
 
 const navigation = [
   { name: 'לוח בקרה', href: '/app', icon: LayoutDashboard },
@@ -28,6 +30,7 @@ const navigation = [
 
 export function Sidebar() {
   const pathname = usePathname()
+  const { agency } = useAuthStore()
   const [collapsed, setCollapsed] = useState(false)
 
   return (
@@ -40,9 +43,29 @@ export function Sidebar() {
       >
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
-            {!collapsed && (
-              <h1 className="text-xl font-bold text-gray-900">TravelPro</h1>
-            )}
+            {!collapsed ? (
+              agency?.logo_url ? (
+                <div className="relative h-10 w-32">
+                  <Image
+                    src={agency.logo_url}
+                    alt={agency.name || 'Logo'}
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              ) : (
+                <h1 className="text-xl font-bold text-gray-900">TravelPro</h1>
+              )
+            ) : agency?.logo_url ? (
+              <div className="relative h-8 w-8 mx-auto">
+                <Image
+                  src={agency.logo_url}
+                  alt={agency.name || 'Logo'}
+                  fill
+                  className="object-contain"
+                />
+              </div>
+            ) : null}
             <button
               onClick={() => setCollapsed(!collapsed)}
               className="p-2 hover:bg-gray-200 rounded-lg transition-colors text-gray-600"
