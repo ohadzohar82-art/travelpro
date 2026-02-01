@@ -48,20 +48,16 @@ ON CONFLICT (id) DO NOTHING;
 -- ============================================
 
 -- מחק policies קיימות כדי למנוע כפילויות
-DROP POLICY IF EXISTS "Users can upload destination images" ON storage.objects;
-DROP POLICY IF EXISTS "Users can view destination images" ON storage.objects;
-DROP POLICY IF EXISTS "Users can delete their destination images" ON storage.objects;
-DROP POLICY IF EXISTS "Users can update their destination images" ON storage.objects;
-
-DROP POLICY IF EXISTS "Users can upload package images" ON storage.objects;
-DROP POLICY IF EXISTS "Users can view package images" ON storage.objects;
-DROP POLICY IF EXISTS "Users can delete their package images" ON storage.objects;
-DROP POLICY IF EXISTS "Users can update their package images" ON storage.objects;
-
-DROP POLICY IF EXISTS "Users can upload logos" ON storage.objects;
-DROP POLICY IF EXISTS "Users can view logos" ON storage.objects;
-DROP POLICY IF EXISTS "Users can delete their logos" ON storage.objects;
-DROP POLICY IF EXISTS "Users can update their logos" ON storage.objects;
+-- מחק את כל הפוליסי הקשורות ל-storage.objects
+DO $$ 
+DECLARE
+    r RECORD;
+BEGIN
+    FOR r IN (SELECT policyname FROM pg_policies WHERE tablename = 'objects' AND schemaname = 'storage') 
+    LOOP
+        EXECUTE 'DROP POLICY IF EXISTS ' || quote_ident(r.policyname) || ' ON storage.objects';
+    END LOOP;
+END $$;
 
 -- ============================================
 -- שלב 3: צור RLS Policies חדשות
