@@ -61,6 +61,11 @@ export default function NewPackagePage() {
 
       if (error) {
         console.error('Package creation error:', error)
+        if (error.message?.includes('schema cache') || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+          toast.error('טבלת החבילות לא קיימת. אנא צור את הטבלאות ב-Supabase. ראה QUICK_SUPABASE_SETUP.md')
+          setLoading(false)
+          return
+        }
         throw error
       }
       

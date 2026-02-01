@@ -66,10 +66,21 @@ export default function PackagesPage() {
 
       const { data, error } = await query
 
-      if (error) throw error
+      if (error) {
+        if (error.message?.includes('schema cache') || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+          console.warn('Database table may not exist yet:', error.message)
+          // Don't show error toast on every load, just log it
+        } else {
+          throw error
+        }
+      }
       setPackages(data || [])
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading packages:', error)
+      // Only show toast for non-table-missing errors
+      if (!error.message?.includes('schema cache') && !error.message?.includes('relation') && !error.message?.includes('does not exist')) {
+        toast.error(error.message || 'שגיאה בטעינת חבילות')
+      }
     } finally {
       setLoading(false)
     }
