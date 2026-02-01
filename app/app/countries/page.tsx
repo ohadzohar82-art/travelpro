@@ -205,7 +205,7 @@ export default function CountriesPage() {
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
             <Button
-              variant={gridCols === 3 ? 'default' : 'ghost'}
+              variant={gridCols === 3 ? 'primary' : 'ghost'}
               size="sm"
               onClick={() => setGridCols(3)}
               className="h-8 w-8 p-0"
@@ -214,7 +214,7 @@ export default function CountriesPage() {
               <Grid3x3 className="h-4 w-4" />
             </Button>
             <Button
-              variant={gridCols === 4 ? 'default' : 'ghost'}
+              variant={gridCols === 4 ? 'primary' : 'ghost'}
               size="sm"
               onClick={() => setGridCols(4)}
               className="h-8 w-8 p-0"
@@ -223,7 +223,7 @@ export default function CountriesPage() {
               <Grid2x2 className="h-4 w-4" />
             </Button>
             <Button
-              variant={gridCols === 5 ? 'default' : 'ghost'}
+              variant={gridCols === 5 ? 'primary' : 'ghost'}
               size="sm"
               onClick={() => setGridCols(5)}
               className="h-8 w-8 p-0"

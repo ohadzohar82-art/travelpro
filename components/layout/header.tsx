@@ -6,9 +6,10 @@ import { Input } from '@/components/ui/input'
 import { useAuthStore } from '@/store/useAuthStore'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 export function Header() {
-  const { user, logout } = useAuthStore()
+  const { user, agency, logout } = useAuthStore()
   const router = useRouter()
 
   const handleLogout = async () => {
@@ -21,6 +22,16 @@ export function Header() {
   return (
     <header className="sticky top-0 z-30 w-full border-b border-gray-200 bg-white shadow-sm">
       <div className="flex h-16 items-center gap-4 px-6">
+        {agency?.logo_url && (
+          <div className="relative h-10 w-32 flex-shrink-0">
+            <Image
+              src={agency.logo_url}
+              alt={agency.name || 'Logo'}
+              fill
+              className="object-contain"
+            />
+          </div>
+        )}
         <div className="flex-1">
           <div className="relative max-w-md">
             <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />

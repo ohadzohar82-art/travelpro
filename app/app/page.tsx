@@ -151,12 +151,26 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header Section */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">לוח בקרה</h1>
-        <p className="text-lg text-gray-600">ברוך הבא{user?.full_name ? `, ${user.full_name}` : ''}</p>
-      </div>
+      <div className="space-y-8">
+        {/* Header Section */}
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            {agency?.logo_url && (
+              <div className="relative h-16 w-48">
+                <Image
+                  src={agency.logo_url}
+                  alt={agency.name || 'Logo'}
+                  fill
+                  className="object-contain"
+                />
+              </div>
+            )}
+            <div>
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">לוח בקרה</h1>
+              <p className="text-lg text-gray-600">ברוך הבא{user?.full_name ? `, ${user.full_name}` : ''}</p>
+            </div>
+          </div>
+        </div>
 
       {/* Stats Cards Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">

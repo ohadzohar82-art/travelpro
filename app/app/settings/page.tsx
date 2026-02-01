@@ -4,9 +4,11 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { ImageUpload } from '@/components/ui/image-upload'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthStore } from '@/store/useAuthStore'
 import { toast } from 'sonner'
+import Image from 'next/image'
 import type { Database } from '@/types/database'
 
 type Agency = Database['public']['Tables']['agencies']['Row']
@@ -119,6 +121,38 @@ export default function SettingsPage() {
             <CardTitle className="text-xl">פרטי סוכנות</CardTitle>
           </CardHeader>
           <CardContent className="p-6 space-y-6">
+            {/* Logo Upload */}
+            <div className="md:col-span-2 border-b pb-6">
+              <label className="block text-sm font-semibold text-gray-700 mb-4">
+                לוגו הסוכנות
+              </label>
+              <div className="flex items-start gap-6">
+                {formData.logo_url && (
+                  <div className="relative w-32 h-32 border-2 border-gray-200 rounded-lg overflow-hidden bg-white">
+                    <Image
+                      src={formData.logo_url}
+                      alt={formData.name || 'Logo'}
+                      fill
+                      className="object-contain p-2"
+                    />
+                  </div>
+                )}
+                <div className="flex-1">
+                  <ImageUpload
+                    currentImage={formData.logo_url || ''}
+                    onUpload={(url) => setFormData({ ...formData, logo_url: url })}
+                    onRemove={() => setFormData({ ...formData, logo_url: null })}
+                    bucket="destination-images"
+                    path={`agency-logo-${agency?.id || Date.now()}`}
+                    label="העלה לוגו"
+                  />
+                  <p className="text-xs text-gray-500 mt-2">
+                    מומלץ: PNG או JPG, עד 2MB. הלוגו יוצג בדשבורד, ב-header, ובעמודי הציבור.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <div className="grid gap-6 md:grid-cols-2">
               <div className="md:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
