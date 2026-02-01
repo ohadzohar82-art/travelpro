@@ -30,6 +30,9 @@ export default function LoginPage() {
 
       if (authError) throw authError
 
+      // Refresh session to ensure cookies are set
+      await supabase.auth.refreshSession()
+
       // Fetch user and agency data
       const { data: userDataArray, error: userError } = await supabase
         .from('users')
