@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Modal } from '@/components/ui/modal'
 import { ImageUpload } from '@/components/ui/image-upload'
-import { Plus, Search } from 'lucide-react'
+import { Plus, Search, Edit, Trash2 } from 'lucide-react'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthStore } from '@/store/useAuthStore'
@@ -27,6 +27,7 @@ export default function DestinationsPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [showModal, setShowModal] = useState(false)
+  const [editingDestination, setEditingDestination] = useState<DestinationWithCountry | null>(null)
   const [newDestination, setNewDestination] = useState({ name: '', country_id: '', description: '', image_url: '' })
   const [saving, setSaving] = useState(false)
   const [countries, setCountries] = useState<Country[]>([])
@@ -87,7 +88,7 @@ export default function DestinationsPage() {
     }
   }, [showModal])
 
-  const handleCreateDestination = async () => {
+  const handleSaveDestination = async () => {
     if (!newDestination.name.trim()) {
       toast.error('אנא הזן שם יעד')
       return
@@ -116,40 +117,82 @@ export default function DestinationsPage() {
         throw new Error('לא נמצא agency_id')
       }
 
-      const { data, error } = await supabase
-        .from('destinations')
-        .insert({
-          agency_id: currentUser.agency_id,
-          name: newDestination.name,
-          country_id: newDestination.country_id || null,
-          description: newDestination.description || null,
-          image_url: newDestination.image_url || null,
-          highlights: [],
-          gallery: [],
-          is_active: true,
-          sort_order: 0,
-        })
-        .select()
-        .single()
-
-      if (error) {
-        if (error.message?.includes('schema cache') || error.message?.includes('relation') || error.message?.includes('does not exist')) {
-          toast.error('טבלת היעדים לא קיימת. אנא צור את הטבלאות ב-Supabase.')
-        } else {
-          throw error
-        }
-        return
+      if (editingDestination) {
+        // Update existing destination
+        const { data, error } = await supabase
+          .from('destinations')
+          .update({
+            name: newDestination.name,
+            country_id: newDestination.country_id || null,
+            description: newDestination.description || null,
+            image_url: newDestination.image_url || null,
+          })
+          .eq('id', editingDestination.id)
+          .select()
+          .single()
+        
+        if (error) throw error
+      } else {
+        // Create new destination
+        const { data, error } = await supabase
+          .from('destinations')
+          .insert({
+            agency_id: currentUser.agency_id,
+            name: newDestination.name,
+            country_id: newDestination.country_id || null,
+            description: newDestination.description || null,
+            image_url: newDestination.image_url || null,
+            highlights: [],
+            gallery: [],
+            is_active: true,
+            sort_order: 0,
+          })
+          .select()
+          .single()
+        
+        if (error) throw error
       }
 
-      toast.success('יעד נוצר בהצלחה!')
+      toast.success(editingDestination ? 'יעד עודכן בהצלחה!' : 'יעד נוצר בהצלחה!')
       setShowModal(false)
+      setEditingDestination(null)
       setNewDestination({ name: '', country_id: '', description: '', image_url: '' })
       loadDestinations()
     } catch (error: any) {
-      console.error('Error creating destination:', error)
-      toast.error(error.message || 'שגיאה ביצירת יעד')
+      console.error('Error saving destination:', error)
+      if (error.message?.includes('schema cache') || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+        toast.error('טבלת היעדים לא קיימת. אנא צור את הטבלאות ב-Supabase.')
+      } else {
+        toast.error(error.message || (editingDestination ? 'שגיאה בעדכון יעד' : 'שגיאה ביצירת יעד'))
+      }
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleEditDestination = (destination: DestinationWithCountry) => {
+    setEditingDestination(destination)
+    setNewDestination({
+      name: destination.name,
+      country_id: destination.country_id || '',
+      description: destination.description || '',
+      image_url: destination.image_url || '',
+    })
+    setShowModal(true)
+  }
+
+  const handleDeleteDestination = async (destination: DestinationWithCountry) => {
+    if (!confirm(`האם אתה בטוח שברצונך למחוק את ${destination.name}?`)) return
+
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.from('destinations').delete().eq('id', destination.id)
+      
+      if (error) throw error
+      toast.success('יעד נמחק בהצלחה!')
+      loadDestinations()
+    } catch (error: any) {
+      toast.error(error.message || 'שגיאה במחיקת יעד')
     }
   }
 
@@ -176,8 +219,12 @@ export default function DestinationsPage() {
 
       <Modal
         isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        title="יעד חדש"
+        onClose={() => {
+          setShowModal(false)
+          setEditingDestination(null)
+          setNewDestination({ name: '', country_id: '', description: '', image_url: '' })
+        }}
+        title={editingDestination ? 'ערוך יעד' : 'יעד חדש'}
       >
         <div className="space-y-4">
           <div>
@@ -221,10 +268,14 @@ export default function DestinationsPage() {
             label="תמונת יעד"
           />
           <div className="flex gap-2">
-            <Button onClick={handleCreateDestination} disabled={saving} className="flex-1">
-              {saving ? 'יוצר...' : 'צור יעד'}
+            <Button onClick={handleSaveDestination} disabled={saving} className="flex-1">
+              {saving ? (editingDestination ? 'מעדכן...' : 'יוצר...') : (editingDestination ? 'עדכן יעד' : 'צור יעד')}
             </Button>
-            <Button variant="ghost" onClick={() => setShowModal(false)} disabled={saving}>
+            <Button variant="ghost" onClick={() => {
+              setShowModal(false)
+              setEditingDestination(null)
+              setNewDestination({ name: '', country_id: '', description: '', image_url: '' })
+            }} disabled={saving}>
               ביטול
             </Button>
           </div>
@@ -257,7 +308,7 @@ export default function DestinationsPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {destinations.map((destination) => (
-            <Card key={destination.id} className="hover:shadow-md transition-shadow overflow-hidden">
+            <Card key={destination.id} className="hover:shadow-md transition-shadow overflow-hidden relative">
               {destination.image_url ? (
                 <div className="relative w-full h-48">
                   <Image
@@ -272,6 +323,26 @@ export default function DestinationsPage() {
                   <span className="text-6xl">🏖️</span>
                 </div>
               )}
+              <div className="absolute top-2 left-2 flex gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleEditDestination(destination)}
+                  className="bg-white/90 hover:bg-white shadow-md"
+                  title="ערוך"
+                >
+                  <Edit className="h-4 w-4 text-blue-600" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleDeleteDestination(destination)}
+                  className="bg-white/90 hover:bg-white shadow-md"
+                  title="מחק"
+                >
+                  <Trash2 className="h-4 w-4 text-red-600" />
+                </Button>
+              </div>
               <CardHeader>
                 <CardTitle>{destination.name}</CardTitle>
               </CardHeader>

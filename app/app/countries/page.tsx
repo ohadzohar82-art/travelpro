@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { Modal } from '@/components/ui/modal'
 import { ImageUpload } from '@/components/ui/image-upload'
-import { Plus } from 'lucide-react'
+import { Plus, Edit, Trash2 } from 'lucide-react'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthStore } from '@/store/useAuthStore'
@@ -16,11 +16,12 @@ import type { Database } from '@/types/database'
 type Country = Database['public']['Tables']['countries']['Row']
 
 export default function CountriesPage() {
-  const { user } = useAuthStore()
+  const { user, agency } = useAuthStore()
   const [countries, setCountries] = useState<Country[]>([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
-  const [newCountry, setNewCountry] = useState({ name: '', name_en: '', code: '', currency: 'USD', image_url: '' })
+  const [editingCountry, setEditingCountry] = useState<Country | null>(null)
+  const [newCountry, setNewCountry] = useState({ name: '', name_en: '', code: '', currency: agency?.default_currency || 'ILS', image_url: '' })
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
@@ -77,7 +78,7 @@ export default function CountriesPage() {
     }
   }
 
-  const handleCreateCountry = async () => {
+  const handleSaveCountry = async () => {
     if (!newCountry.name.trim()) {
       toast.error('אנא הזן שם מדינה')
       return
@@ -107,37 +108,81 @@ export default function CountriesPage() {
         throw new Error('לא נמצא agency_id')
       }
 
-      const { data, error } = await supabase
-        .from('countries')
-        .insert({
-          agency_id: currentUser.agency_id,
-          name: newCountry.name,
-          name_en: newCountry.name_en || null,
-          code: newCountry.code || null,
-          currency: newCountry.currency,
-          image_url: newCountry.image_url || null,
-        })
-        .select()
-        .single()
-
-      if (error) {
-        if (error.message?.includes('schema cache') || error.message?.includes('relation') || error.message?.includes('does not exist')) {
-          toast.error('טבלת המדינות לא קיימת. אנא צור את הטבלאות ב-Supabase.')
-        } else {
-          throw error
-        }
-        return
+      if (editingCountry) {
+        // Update existing country
+        const { data, error } = await supabase
+          .from('countries')
+          .update({
+            name: newCountry.name,
+            name_en: newCountry.name_en || null,
+            code: newCountry.code || null,
+            currency: newCountry.currency,
+            image_url: newCountry.image_url || null,
+          })
+          .eq('id', editingCountry.id)
+          .select()
+          .single()
+        
+        if (error) throw error
+      } else {
+        // Create new country
+        const { data, error } = await supabase
+          .from('countries')
+          .insert({
+            agency_id: currentUser.agency_id,
+            name: newCountry.name,
+            name_en: newCountry.name_en || null,
+            code: newCountry.code || null,
+            currency: newCountry.currency,
+            image_url: newCountry.image_url || null,
+          })
+          .select()
+          .single()
+        
+        if (error) throw error
       }
 
-      toast.success('מדינה נוצרה בהצלחה!')
+      toast.success(editingCountry ? 'מדינה עודכנה בהצלחה!' : 'מדינה נוצרה בהצלחה!')
       setShowModal(false)
-      setNewCountry({ name: '', name_en: '', code: '', currency: 'USD', image_url: '' })
+      setEditingCountry(null)
+      setNewCountry({ name: '', name_en: '', code: '', currency: agency?.default_currency || 'ILS', image_url: '' })
       loadCountries()
     } catch (error: any) {
-      console.error('Error creating country:', error)
-      toast.error(error.message || 'שגיאה ביצירת מדינה')
+      console.error('Error saving country:', error)
+      if (error.message?.includes('schema cache') || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+        toast.error('טבלת המדינות לא קיימת. אנא צור את הטבלאות ב-Supabase.')
+      } else {
+        toast.error(error.message || (editingCountry ? 'שגיאה בעדכון מדינה' : 'שגיאה ביצירת מדינה'))
+      }
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleEditCountry = (country: Country) => {
+    setEditingCountry(country)
+    setNewCountry({
+      name: country.name,
+      name_en: country.name_en || '',
+      code: country.code || '',
+      currency: country.currency || agency?.default_currency || 'ILS',
+      image_url: country.image_url || '',
+    })
+    setShowModal(true)
+  }
+
+  const handleDeleteCountry = async (country: Country) => {
+    if (!confirm(`האם אתה בטוח שברצונך למחוק את ${country.name}?`)) return
+
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.from('countries').delete().eq('id', country.id)
+      
+      if (error) throw error
+      toast.success('מדינה נמחקה בהצלחה!')
+      loadCountries()
+    } catch (error: any) {
+      toast.error(error.message || 'שגיאה במחיקת מדינה')
     }
   }
 
@@ -164,8 +209,12 @@ export default function CountriesPage() {
 
       <Modal
         isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        title="מדינה חדשה"
+        onClose={() => {
+          setShowModal(false)
+          setEditingCountry(null)
+          setNewCountry({ name: '', name_en: '', code: '', currency: agency?.default_currency || 'ILS', image_url: '' })
+        }}
+        title={editingCountry ? 'ערוך מדינה' : 'מדינה חדשה'}
       >
         <div className="space-y-4">
           <div>
@@ -210,10 +259,14 @@ export default function CountriesPage() {
             label="תמונת מדינה"
           />
           <div className="flex gap-2">
-            <Button onClick={handleCreateCountry} disabled={saving} className="flex-1">
-              {saving ? 'יוצר...' : 'צור מדינה'}
+            <Button onClick={handleSaveCountry} disabled={saving} className="flex-1">
+              {saving ? (editingCountry ? 'מעדכן...' : 'יוצר...') : (editingCountry ? 'עדכן מדינה' : 'צור מדינה')}
             </Button>
-            <Button variant="ghost" onClick={() => setShowModal(false)} disabled={saving}>
+            <Button variant="ghost" onClick={() => {
+              setShowModal(false)
+              setEditingCountry(null)
+              setNewCountry({ name: '', name_en: '', code: '', currency: agency?.default_currency || 'ILS', image_url: '' })
+            }} disabled={saving}>
               ביטול
             </Button>
           </div>
@@ -230,7 +283,7 @@ export default function CountriesPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {countries.map((country) => (
-            <Card key={country.id} className="overflow-hidden hover:shadow-md transition-shadow">
+            <Card key={country.id} className="overflow-hidden hover:shadow-md transition-shadow relative">
               {country.image_url ? (
                 <div className="relative w-full h-48">
                   <Image
@@ -245,6 +298,26 @@ export default function CountriesPage() {
                   <span className="text-6xl">🌍</span>
                 </div>
               )}
+              <div className="absolute top-2 left-2 flex gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleEditCountry(country)}
+                  className="bg-white/90 hover:bg-white shadow-md"
+                  title="ערוך"
+                >
+                  <Edit className="h-4 w-4 text-blue-600" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleDeleteCountry(country)}
+                  className="bg-white/90 hover:bg-white shadow-md"
+                  title="מחק"
+                >
+                  <Trash2 className="h-4 w-4 text-red-600" />
+                </Button>
+              </div>
               <CardContent className="p-6">
                 <h3 className="text-xl font-semibold mb-2">{country.name}</h3>
                 {country.name_en && (
