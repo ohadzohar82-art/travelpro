@@ -37,12 +37,14 @@ export default function NewPackagePage() {
           language: 'he',
         })
         .select()
-        .single()
 
       if (error) throw error
+      if (!data || data.length === 0) {
+        throw new Error('Failed to create package')
+      }
 
       toast.success('חבילה נוצרה בהצלחה!')
-      router.push(`/app/packages/${data.id}`)
+      router.push(`/app/packages/${data[0].id}`)
     } catch (error: any) {
       toast.error(error.message || 'שגיאה ביצירת חבילה')
     } finally {

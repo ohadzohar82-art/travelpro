@@ -36,10 +36,12 @@ export default function SettingsPage() {
         .update(formData)
         .eq('id', agency.id)
         .select()
-        .single()
 
       if (error) throw error
-      setAgency(data)
+      if (!data || data.length === 0) {
+        throw new Error('Failed to update settings')
+      }
+      setAgency(data[0])
       toast.success('הגדרות נשמרו בהצלחה!')
     } catch (error: any) {
       toast.error(error.message || 'שגיאה בשמירת הגדרות')

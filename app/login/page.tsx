@@ -31,16 +31,24 @@ export default function LoginPage() {
       if (authError) throw authError
 
       // Fetch user and agency data
-      const { data: userData, error: userError } = await supabase
+      const { data: userDataArray, error: userError } = await supabase
         .from('users')
         .select('*, agencies(*)')
         .eq('id', authData.user.id)
-        .single()
 
       if (userError) throw userError
+      
+      if (!userDataArray || userDataArray.length === 0) {
+        throw new Error('User record not found. Please sign up first.')
+      }
 
+      const userData = userDataArray[0]
       setUser(userData)
-      setAgency(userData.agencies)
+      // Handle agencies - it might be an array or object
+      const agency = Array.isArray(userData.agencies) 
+        ? userData.agencies[0] 
+        : userData.agencies
+      setAgency(agency)
 
       toast.success('התחברת בהצלחה!')
       router.push('/app')
