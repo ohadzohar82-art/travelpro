@@ -9,11 +9,12 @@ interface ModalProps {
   isOpen: boolean
   onClose: () => void
   title: string
+  description?: string
   children: React.ReactNode
   size?: 'sm' | 'md' | 'lg' | 'xl'
 }
 
-export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {
+export function Modal({ isOpen, onClose, title, description, children, size = 'md' }: ModalProps) {
   if (!isOpen) return null
 
   return (
@@ -31,7 +32,10 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
         onClick={(e) => e.stopPropagation()}
       >
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>{title}</CardTitle>
+          <div className="flex-1">
+            <CardTitle>{title}</CardTitle>
+            {description && <p className="text-sm text-gray-500 mt-1">{description}</p>}
+          </div>
           <Button variant="ghost" size="sm" onClick={onClose}>
             <X size={18} />
           </Button>
