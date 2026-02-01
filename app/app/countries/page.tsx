@@ -198,9 +198,17 @@ export default function CountriesPage() {
             <Input
               value={newCountry.currency}
               onChange={(e) => setNewCountry({ ...newCountry, currency: e.target.value })}
-              placeholder="USD"
+              placeholder="ILS"
             />
           </div>
+          <ImageUpload
+            currentImage={newCountry.image_url}
+            onUpload={(url) => setNewCountry({ ...newCountry, image_url: url })}
+            onRemove={() => setNewCountry({ ...newCountry, image_url: '' })}
+            bucket="destination-images"
+            path={`country-${Date.now()}`}
+            label="תמונת מדינה"
+          />
           <div className="flex gap-2">
             <Button onClick={handleCreateCountry} disabled={saving} className="flex-1">
               {saving ? 'יוצר...' : 'צור מדינה'}
@@ -222,7 +230,21 @@ export default function CountriesPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {countries.map((country) => (
-            <Card key={country.id}>
+            <Card key={country.id} className="overflow-hidden hover:shadow-md transition-shadow">
+              {country.image_url ? (
+                <div className="relative w-full h-48">
+                  <Image
+                    src={country.image_url}
+                    alt={country.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="relative w-full h-48 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
+                  <span className="text-6xl">🌍</span>
+                </div>
+              )}
               <CardContent className="p-6">
                 <h3 className="text-xl font-semibold mb-2">{country.name}</h3>
                 {country.name_en && (

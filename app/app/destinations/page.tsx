@@ -258,7 +258,7 @@ export default function DestinationsPage() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {destinations.map((destination) => (
             <Card key={destination.id} className="hover:shadow-md transition-shadow overflow-hidden">
-              {destination.image_url && (
+              {destination.image_url ? (
                 <div className="relative w-full h-48">
                   <Image
                     src={destination.image_url}
@@ -266,6 +266,10 @@ export default function DestinationsPage() {
                     fill
                     className="object-cover"
                   />
+                </div>
+              ) : (
+                <div className="relative w-full h-48 bg-gradient-to-br from-purple-100 to-purple-200 flex items-center justify-center">
+                  <span className="text-6xl">🏖️</span>
                 </div>
               )}
               <CardHeader>

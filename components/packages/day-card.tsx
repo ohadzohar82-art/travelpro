@@ -20,9 +20,10 @@ interface DayCardProps {
   onUpdate: (day: PackageDay) => void
   onDelete: () => void
   onItemsChange: (items: PackageItem[]) => void
+  currency?: string
 }
 
-export function DayCard({ day, items, packageId, onUpdate, onDelete, onItemsChange }: DayCardProps) {
+export function DayCard({ day, items, packageId, onUpdate, onDelete, onItemsChange, currency = 'USD' }: DayCardProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [title, setTitle] = useState(day?.title || '')
   
@@ -115,6 +116,7 @@ export function DayCard({ day, items, packageId, onUpdate, onDelete, onItemsChan
                   onDelete={() => {
                     onItemsChange(items.filter((i) => i.id !== item.id))
                   }}
+                  currency={currency}
                 />
               ))
           )}

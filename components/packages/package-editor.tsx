@@ -372,6 +372,7 @@ export function PackageEditor({ packageId }: { packageId: string }) {
               packageId={packageId}
               onDaysChange={setDays}
               onItemsChange={setItems}
+              currency={pkg.currency || 'USD'}
             />
           )}
         </div>

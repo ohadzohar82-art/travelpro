@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Plus, Search, Filter } from 'lucide-react'
+import { Plus, Search, Filter, Edit, Trash2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthStore } from '@/store/useAuthStore'
 import { formatDate } from '@/lib/utils'
@@ -163,36 +163,67 @@ export default function PackagesPage() {
       ) : (
         <div className="grid gap-4">
           {packages.map((pkg) => (
-            <Link key={pkg.id} href={`/app/packages/${pkg.id}`}>
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-xl font-semibold">{pkg.title}</h3>
-                        <Badge variant={getStatusVariant(pkg.status)}>
-                          {getStatusLabel(pkg.status)}
-                        </Badge>
-                      </div>
-                      {pkg.client_name && (
-                        <p className="text-gray-600 mb-2">לקוח: {pkg.client_name}</p>
-                      )}
-                      {pkg.start_date && pkg.end_date && (
-                        <p className="text-sm text-gray-500">
-                          {formatDate(pkg.start_date)} - {formatDate(pkg.end_date)}
-                        </p>
-                      )}
-                      <p className="text-lg font-semibold mt-2">
-                        {new Intl.NumberFormat('he-IL', {
-                          style: 'currency',
-                          currency: pkg.currency || 'USD',
-                        }).format(pkg.total_price || 0)}
-                      </p>
+            <Card key={pkg.id} className="hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between">
+                  <Link href={`/app/packages/${pkg.id}`} className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="text-xl font-semibold">{pkg.title}</h3>
+                      <Badge variant={getStatusVariant(pkg.status)}>
+                        {getStatusLabel(pkg.status)}
+                      </Badge>
                     </div>
+                    {pkg.client_name && (
+                      <p className="text-gray-600 mb-2">לקוח: {pkg.client_name}</p>
+                    )}
+                    {pkg.start_date && pkg.end_date && (
+                      <p className="text-sm text-gray-500">
+                        {formatDate(pkg.start_date)} - {formatDate(pkg.end_date)}
+                      </p>
+                    )}
+                    <p className="text-lg font-semibold mt-2">
+                      {new Intl.NumberFormat('he-IL', {
+                        style: 'currency',
+                        currency: pkg.currency || 'USD',
+                      }).format(pkg.total_price || 0)}
+                    </p>
+                  </Link>
+                  <div className="flex gap-2 mr-4">
+                    <Link href={`/app/packages/${pkg.id}`}>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className="hover:bg-blue-50 hover:text-blue-600"
+                        title="ערוך"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={async (e) => {
+                        e.preventDefault()
+                        if (!confirm('האם אתה בטוח שברצונך למחוק חבילה זו?')) return
+                        try {
+                          const supabase = createClient()
+                          const { error } = await supabase.from('packages').delete().eq('id', pkg.id)
+                          if (error) throw error
+                          toast.success('חבילה נמחקה בהצלחה!')
+                          loadPackages()
+                        } catch (error: any) {
+                          toast.error(error.message || 'שגיאה במחיקת חבילה')
+                        }
+                      }}
+                      className="hover:bg-red-50 hover:text-red-600"
+                      title="מחק"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
-                </CardContent>
-              </Card>
-            </Link>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}

@@ -38,9 +38,10 @@ interface ItemCardProps {
   item: PackageItem
   onUpdate: (item: PackageItem) => void
   onDelete: () => void
+  currency?: string
 }
 
-export function ItemCard({ item, onUpdate, onDelete }: ItemCardProps) {
+export function ItemCard({ item, onUpdate, onDelete, currency = 'USD' }: ItemCardProps) {
   const [isEditing, setIsEditing] = useState(false)
   
   if (!item || !item.id) {
@@ -98,16 +99,34 @@ export function ItemCard({ item, onUpdate, onDelete }: ItemCardProps) {
               <p className="text-sm font-semibold mt-2">
                 {new Intl.NumberFormat('he-IL', {
                   style: 'currency',
-                  currency: 'USD',
+                  currency: currency,
                 }).format(item.price || 0)}
               </p>
             )}
           </div>
-          <div className="flex gap-1">
-            <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)}>
+          <div className="flex gap-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={(e) => {
+                e.stopPropagation()
+                setIsEditing(true)
+              }}
+              className="hover:bg-blue-50 hover:text-blue-600"
+              title="ערוך"
+            >
               <Edit className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="sm" onClick={handleDelete}>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={(e) => {
+                e.stopPropagation()
+                handleDelete()
+              }}
+              className="hover:bg-red-50 hover:text-red-600"
+              title="מחק"
+            >
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>

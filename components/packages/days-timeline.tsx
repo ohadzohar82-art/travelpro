@@ -13,6 +13,7 @@ interface DaysTimelineProps {
   packageId: string
   onDaysChange: (days: PackageDay[]) => void
   onItemsChange: (items: PackageItem[]) => void
+  currency?: string
 }
 
 export function DaysTimeline({
@@ -21,6 +22,7 @@ export function DaysTimeline({
   packageId,
   onDaysChange,
   onItemsChange,
+  currency = 'USD',
 }: DaysTimelineProps) {
   if (days.length === 0) {
     return (
@@ -65,6 +67,7 @@ export function DaysTimeline({
               const otherItems = (items || []).filter((item) => item?.day_id !== day.id)
               onItemsChange([...otherItems, ...updatedItems])
             }}
+            currency={currency}
           />
         )
       })}

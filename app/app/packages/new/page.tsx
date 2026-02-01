@@ -11,7 +11,7 @@ import { toast } from 'sonner'
 
 export default function NewPackagePage() {
   const router = useRouter()
-  const { user } = useAuthStore()
+  const { user, agency } = useAuthStore()
   const [title, setTitle] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -25,18 +25,21 @@ export default function NewPackagePage() {
     try {
       const supabase = createClient()
       
-      // Get user from session if not in store
+      // Get user and agency from session if not in store
       let currentUser = user
-      if (!currentUser) {
+      let currentAgency = agency
+      if (!currentUser || !currentAgency) {
         const { data: { session } } = await supabase.auth.getSession()
         if (session?.user) {
           const { data: userDataArray } = await supabase
             .from('users')
-            .select('*')
+            .select('*, agencies(*)')
             .eq('id', session.user.id)
-            .single()
-          if (userDataArray) {
-            currentUser = userDataArray
+          if (userDataArray && userDataArray.length > 0) {
+            currentUser = userDataArray[0]
+            currentAgency = Array.isArray(currentUser.agencies) 
+              ? currentUser.agencies[0] 
+              : currentUser.agencies
           }
         }
       }
@@ -45,13 +48,15 @@ export default function NewPackagePage() {
         throw new Error('לא נמצא agency_id. אנא התחבר מחדש.')
       }
       
+      const defaultCurrency = currentAgency?.default_currency || 'ILS'
+      
       const { data, error } = await supabase
         .from('packages')
         .insert({
           agency_id: currentUser.agency_id,
           title,
           status: 'draft',
-          currency: 'USD',
+          currency: defaultCurrency,
           adults: 2,
           children: 0,
           infants: 0,
