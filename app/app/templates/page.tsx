@@ -16,20 +16,40 @@ export default function TemplatesPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (user) {
-      loadTemplates()
-    }
+    loadTemplates()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user])
+  }, [])
 
   const loadTemplates = async () => {
     try {
       const supabase = createClient()
-      const { data, error } = await supabase
+      
+      // Get user from session if not in store
+      let currentUser = user
+      if (!currentUser) {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user) {
+          const { data: userDataArray } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single()
+          if (userDataArray) {
+            currentUser = userDataArray
+          }
+        }
+      }
+      
+      let query = supabase
         .from('templates')
         .select('*')
-        .eq('agency_id', user?.agency_id)
         .order('created_at', { ascending: false })
+      
+      if (currentUser?.agency_id) {
+        query = query.eq('agency_id', currentUser.agency_id)
+      }
+      
+      const { data, error } = await query
 
       if (error) throw error
       setTemplates(data || [])
