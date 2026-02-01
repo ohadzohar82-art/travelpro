@@ -26,44 +26,49 @@ export default function DashboardPage() {
       try {
         const supabase = createClient()
         
-        // Wait a moment for cookies
-        await new Promise(resolve => setTimeout(resolve, 500))
+        // Wait longer for cookies to propagate after redirect
+        await new Promise(resolve => setTimeout(resolve, 1000))
         
-        console.log('Checking session...')
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-        console.log('Session result:', { 
-          hasSession: !!session, 
-          hasUser: !!session?.user, 
-          userId: session?.user?.id,
-          error: sessionError?.message 
-        })
-        
-        if (session?.user) {
-          console.log('Session found, user:', session.user.id)
-          await loadUserData(supabase, session.user.id)
-          return
+        // Try multiple times - cookies might not be ready immediately
+        let foundUser = false
+        for (let attempt = 0; attempt < 10; attempt++) {
+          console.log(`Auth check attempt ${attempt + 1}/10`)
+          
+          const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+          console.log('getSession:', { hasSession: !!session, hasUser: !!session?.user, error: sessionError?.message })
+          
+          if (session?.user) {
+            console.log('✅ Session found!', session.user.id)
+            await loadUserData(supabase, session.user.id)
+            foundUser = true
+            break
+          }
+          
+          const { data: { user: authUser }, error: userError } = await supabase.auth.getUser()
+          console.log('getUser:', { hasUser: !!authUser, error: userError?.message })
+          
+          if (authUser) {
+            console.log('✅ User found via getUser!', authUser.id)
+            await loadUserData(supabase, authUser.id)
+            foundUser = true
+            break
+          }
+          
+          // Wait before next attempt
+          if (attempt < 9) {
+            await new Promise(resolve => setTimeout(resolve, 500))
+          }
         }
         
-        console.log('No session, trying getUser...')
-        const { data: { user: authUser }, error: userError } = await supabase.auth.getUser()
-        console.log('getUser result:', { 
-          hasUser: !!authUser, 
-          userId: authUser?.id,
-          error: userError?.message 
-        })
-        
-        if (authUser) {
-          console.log('User found via getUser:', authUser.id)
-          await loadUserData(supabase, authUser.id)
-          return
+        if (!foundUser) {
+          console.error('❌ No user found after all attempts')
+          router.push('/login')
         }
-        
-        console.error('No authenticated user found')
-        router.push('/login')
         
       } catch (error) {
         console.error('=== DASHBOARD AUTH ERROR ===', error)
-        router.push('/login')
+        // Don't redirect on error - might be temporary
+        setLoading(false)
       }
     }
     
