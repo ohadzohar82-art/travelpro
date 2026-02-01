@@ -50,10 +50,11 @@ export default function LoginPage() {
         : userData.agencies
       setAgency(agency)
 
-      toast.success('התחברת בהצלחה!')
+      // Redirect immediately BEFORE toast (to ensure it happens)
+      window.location.replace('/app')
       
-      // Redirect immediately - this MUST happen
-      window.location.href = '/app'
+      // Show toast after redirect is initiated
+      toast.success('התחברת בהצלחה!')
     } catch (error: any) {
       console.error('Login error:', error)
       toast.error(error.message || 'שגיאה בהתחברות')
