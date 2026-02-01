@@ -96,6 +96,9 @@ export function PackageEditor({ packageId }: { packageId: string }) {
         .single()
 
       if (pkgError) throw pkgError
+      if (!pkgData) {
+        throw new Error('Package not found')
+      }
       setPkg(pkgData)
 
       // Load days
@@ -160,11 +163,14 @@ export function PackageEditor({ packageId }: { packageId: string }) {
   }
 
   const handleAddDay = async () => {
-    if (!pkg) return
+    if (!pkg || !pkg.id || !pkg.agency_id) {
+      toast.error('חבילה לא תקינה')
+      return
+    }
 
     try {
       const supabase = createClient()
-      const dayNumber = days.length + 1
+      const dayNumber = (days?.length || 0) + 1
 
       const { data, error } = await supabase
         .from('package_days')
@@ -204,13 +210,15 @@ export function PackageEditor({ packageId }: { packageId: string }) {
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <Input
-            value={pkg.title}
-            onChange={(e) => setPkg({ ...pkg, title: e.target.value })}
+            value={pkg?.title || ''}
+            onChange={(e) => setPkg({ ...pkg, title: e.target.value } as Package)}
             className="text-2xl font-bold border-0 p-0 focus-visible:ring-0"
             placeholder="שם החבילה"
           />
           <div className="flex items-center gap-2 mt-2">
-            <Badge variant={pkg.status as any}>{pkg.status}</Badge>
+            {pkg.status && (
+              <Badge variant={(pkg.status as any) || 'draft'}>{pkg.status}</Badge>
+            )}
           </div>
         </div>
         <Button onClick={handleSave} disabled={saving}>
@@ -278,19 +286,25 @@ export function PackageEditor({ packageId }: { packageId: string }) {
               הוסף יום
             </Button>
           </div>
-          <DaysTimeline
-            days={days}
-            items={items}
-            packageId={packageId}
-            onDaysChange={setDays}
-            onItemsChange={setItems}
-          />
+          {pkg && (
+            <DaysTimeline
+              days={days || []}
+              items={items || []}
+              packageId={packageId}
+              onDaysChange={setDays}
+              onItemsChange={setItems}
+            />
+          )}
         </div>
 
         {/* Sidebar */}
         <div className="space-y-6">
-          <ItemTypesPalette packageId={packageId} days={days} />
-          <PriceSummary items={items} currency={pkg.currency} />
+          {pkg && (
+            <>
+              <ItemTypesPalette packageId={packageId} days={days || []} />
+              <PriceSummary items={items || []} currency={pkg.currency || 'USD'} />
+            </>
+          )}
         </div>
       </div>
     </div>
