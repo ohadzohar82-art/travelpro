@@ -46,8 +46,6 @@ export default function LoginPage() {
       }
 
       const userData = userDataArray[0]
-      console.log('User data fetched:', userData)
-      
       setUser(userData)
       // Handle agencies - it might be an array or object
       const agency = Array.isArray(userData.agencies) 
@@ -55,22 +53,23 @@ export default function LoginPage() {
         : userData.agencies
       setAgency(agency)
 
-      console.log('Login successful, user and agency set:', { user: userData, agency })
+      // Verify session is actually set and persisted
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      if (!session || sessionError) {
+        throw new Error('Failed to establish session')
+      }
+
+      // Double-check by getting user again
+      const { data: { user: verifyUser } } = await supabase.auth.getUser()
+      if (!verifyUser) {
+        throw new Error('Session not properly set')
+      }
+
+      toast.success('התחברת בהצלחה!')
       
-      // Verify session is set before redirecting
-      const { data: { session } } = await supabase.auth.getSession()
-      console.log('Session after login:', session)
-      
-      toast.success('התחברת בהצלחה!', {
-        duration: 1500,
-      })
-      
-      // Wait longer to ensure cookies are fully set
-      setTimeout(() => {
-        console.log('Executing redirect to /app...')
-        // Use href instead of replace to allow back navigation
-        window.location.href = '/app'
-      }, 1500)
+      // Use router.push for proper Next.js navigation
+      router.push('/app')
+      router.refresh() // Refresh to ensure middleware sees the new session
     } catch (error: any) {
       console.error('Login error:', error)
       toast.error(error.message || 'שגיאה בהתחברות')

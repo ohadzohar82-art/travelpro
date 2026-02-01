@@ -21,82 +21,36 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      // Small delay to ensure cookies are available
-      await new Promise(resolve => setTimeout(resolve, 100))
-      
-      console.log('Dashboard: Checking auth, user in store:', user)
-      
       const supabase = createClient()
       
-      // Always check auth from Supabase (don't rely on store)
+      // Check authentication
       const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
       
-      console.log('Dashboard: Auth check result:', { authUser, authError, hasAuthUser: !!authUser })
-      
       if (!authUser) {
-        console.log('Dashboard: No auth user found, waiting before redirect...')
-        // Wait longer before redirecting - might be a cookie timing issue
-        setTimeout(async () => {
-          const retrySupabase = createClient()
-          const { data: { user: retryUser } } = await retrySupabase.auth.getUser()
-          console.log('Dashboard: Retry auth check:', { retryUser })
-          if (!retryUser) {
-            console.log('Dashboard: Still no auth user after retry, redirecting to login')
-            window.location.href = '/login'
-          } else {
-            // Found user on retry, continue with auth
-            const { data: userDataArray } = await retrySupabase
-              .from('users')
-              .select('*, agencies(*)')
-              .eq('id', retryUser.id)
-            
-            if (userDataArray && userDataArray.length > 0) {
-              const userData = userDataArray[0]
-              setUser(userData)
-              const agencyData = Array.isArray(userData.agencies) 
-                ? userData.agencies[0] 
-                : userData.agencies
-              setAgency(agencyData)
-              loadStats(userData)
-            }
-          }
-        }, 2000)
+        router.push('/login')
         return
       }
       
-      // If we have authUser but no user in store, or user ID doesn't match, fetch it
+      // Fetch user data if not in store or ID doesn't match
       if (!user || user.id !== authUser.id) {
-        console.log('Dashboard: Fetching user data from database')
         const { data: userDataArray, error: userError } = await supabase
           .from('users')
           .select('*, agencies(*)')
           .eq('id', authUser.id)
         
-        console.log('Dashboard: User data fetch:', { userDataArray, userError })
-        
-        if (userError) {
-          console.error('Dashboard: Error fetching user:', userError)
-          // Don't redirect on error, just show loading
-          setLoading(false)
+        if (userError || !userDataArray || userDataArray.length === 0) {
+          router.push('/login')
           return
         }
         
-        if (userDataArray && userDataArray.length > 0) {
-          const userData = userDataArray[0]
-          setUser(userData)
-          const agencyData = Array.isArray(userData.agencies) 
-            ? userData.agencies[0] 
-            : userData.agencies
-          setAgency(agencyData)
-          loadStats(userData)
-        } else {
-          console.log('Dashboard: No user record found in database')
-          // User exists in auth but not in users table - this is a data issue
-          setLoading(false)
-          return
-        }
+        const userData = userDataArray[0]
+        setUser(userData)
+        const agencyData = Array.isArray(userData.agencies) 
+          ? userData.agencies[0] 
+          : userData.agencies
+        setAgency(agencyData)
+        loadStats(userData)
       } else {
-        console.log('Dashboard: User in store matches auth, loading stats')
         loadStats(user)
       }
     }
