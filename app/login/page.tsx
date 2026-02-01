@@ -43,6 +43,8 @@ export default function LoginPage() {
       }
 
       const userData = userDataArray[0]
+      console.log('User data fetched:', userData)
+      
       setUser(userData)
       // Handle agencies - it might be an array or object
       const agency = Array.isArray(userData.agencies) 
@@ -50,13 +52,20 @@ export default function LoginPage() {
         : userData.agencies
       setAgency(agency)
 
-      toast.success('התחברת בהצלחה!')
+      console.log('Login successful, redirecting to /app...')
+      toast.success('התחברת בהצלחה!', {
+        duration: 1000,
+      })
       
-      // Use window.location for a hard redirect to ensure cookies are set
-      window.location.href = '/app'
+      // Don't set loading to false - let the redirect happen
+      // Use replace to avoid back button issues
+      setTimeout(() => {
+        console.log('Executing redirect...')
+        window.location.replace('/app')
+      }, 1000)
     } catch (error: any) {
+      console.error('Login error:', error)
       toast.error(error.message || 'שגיאה בהתחברות')
-    } finally {
       setLoading(false)
     }
   }

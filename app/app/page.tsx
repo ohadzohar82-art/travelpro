@@ -21,21 +21,28 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const checkAuth = async () => {
+      console.log('Dashboard: Checking auth, user in store:', user)
+      
       // If no user in store, check if we're actually authenticated
       if (!user) {
         const supabase = createClient()
-        const { data: { user: authUser } } = await supabase.auth.getUser()
+        const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
         
-        if (!authUser) {
-          router.push('/login')
+        console.log('Dashboard: Auth check result:', { authUser, authError })
+        
+        if (!authUser || authError) {
+          console.log('Dashboard: No auth user, redirecting to login')
+          window.location.href = '/login'
           return
         }
         
         // If authenticated but no user in store, fetch it
-        const { data: userDataArray } = await supabase
+        const { data: userDataArray, error: userError } = await supabase
           .from('users')
           .select('*, agencies(*)')
           .eq('id', authUser.id)
+        
+        console.log('Dashboard: User data fetch:', { userDataArray, userError })
         
         if (userDataArray && userDataArray.length > 0) {
           const userData = userDataArray[0]
@@ -46,10 +53,12 @@ export default function DashboardPage() {
           setAgency(agencyData)
           loadStats(userData)
         } else {
-          router.push('/login')
+          console.log('Dashboard: No user record found, redirecting to login')
+          window.location.href = '/login'
           return
         }
       } else {
+        console.log('Dashboard: User in store, loading stats')
         loadStats(user)
       }
     }
