@@ -21,6 +21,9 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const checkAuth = async () => {
+      // Small delay to ensure cookies are available
+      await new Promise(resolve => setTimeout(resolve, 100))
+      
       console.log('Dashboard: Checking auth, user in store:', user)
       
       const supabase = createClient()
@@ -28,20 +31,36 @@ export default function DashboardPage() {
       // Always check auth from Supabase (don't rely on store)
       const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
       
-      console.log('Dashboard: Auth check result:', { authUser, authError })
+      console.log('Dashboard: Auth check result:', { authUser, authError, hasAuthUser: !!authUser })
       
       if (!authUser) {
-        console.log('Dashboard: No auth user found')
-        // Wait a bit before redirecting - might be a timing issue
-        setTimeout(() => {
-          const supabase = createClient()
-          supabase.auth.getUser().then(({ data: { user: retryUser } }) => {
-            if (!retryUser) {
-              console.log('Dashboard: Still no auth user after retry, redirecting')
-              window.location.href = '/login'
+        console.log('Dashboard: No auth user found, waiting before redirect...')
+        // Wait longer before redirecting - might be a cookie timing issue
+        setTimeout(async () => {
+          const retrySupabase = createClient()
+          const { data: { user: retryUser } } = await retrySupabase.auth.getUser()
+          console.log('Dashboard: Retry auth check:', { retryUser })
+          if (!retryUser) {
+            console.log('Dashboard: Still no auth user after retry, redirecting to login')
+            window.location.href = '/login'
+          } else {
+            // Found user on retry, continue with auth
+            const { data: userDataArray } = await retrySupabase
+              .from('users')
+              .select('*, agencies(*)')
+              .eq('id', retryUser.id)
+            
+            if (userDataArray && userDataArray.length > 0) {
+              const userData = userDataArray[0]
+              setUser(userData)
+              const agencyData = Array.isArray(userData.agencies) 
+                ? userData.agencies[0] 
+                : userData.agencies
+              setAgency(agencyData)
+              loadStats(userData)
             }
-          })
-        }, 1000)
+          }
+        }, 2000)
         return
       }
       
