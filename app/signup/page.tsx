@@ -41,16 +41,20 @@ export default function SignupPage() {
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)/g, '')
 
-      const { data: agencyData, error: agencyError } = await supabase
+      const { data: agencyDataArray, error: agencyError } = await supabase
         .from('agencies')
         .insert({
           name: formData.agency_name,
           slug,
         })
         .select()
-        .single()
 
       if (agencyError) throw agencyError
+      if (!agencyDataArray || agencyDataArray.length === 0) {
+        throw new Error('Failed to create agency')
+      }
+      
+      const agencyData = agencyDataArray[0]
 
       // Create user record
       const { error: userError } = await supabase.from('users').insert({
