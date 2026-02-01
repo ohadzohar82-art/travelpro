@@ -242,6 +242,59 @@ export function PackageEditor({ packageId }: { packageId: string }) {
     }
   }
 
+  const handleGenerateShareLink = async () => {
+    if (!pkg || !pkg.id) {
+      toast.error('חבילה לא תקינה')
+      return
+    }
+
+    try {
+      const supabase = createClient()
+      const publicToken = pkg.public_token || generatePublicToken()
+      
+      // Set expiration to 30 days from now
+      const expiresAt = new Date()
+      expiresAt.setDate(expiresAt.getDate() + 30)
+
+      const { error: updateError } = await supabase
+        .from('packages')
+        .update({
+          public_token: publicToken,
+          public_expires_at: expiresAt.toISOString(),
+        })
+        .eq('id', pkg.id)
+
+      if (updateError) throw updateError
+
+      // Update local state
+      setPkg({ ...pkg, public_token: publicToken, public_expires_at: expiresAt.toISOString() })
+
+      // Copy link to clipboard
+      const shareUrl = `${window.location.origin}/p/${publicToken}`
+      await navigator.clipboard.writeText(shareUrl)
+      
+      setCopied(true)
+      toast.success('קישור הועתק ללוח!')
+      
+      setTimeout(() => setCopied(false), 2000)
+    } catch (error: any) {
+      toast.error(error.message || 'שגיאה ביצירת קישור')
+    }
+  }
+
+  const handleCopyLink = async () => {
+    if (!pkg?.public_token) {
+      await handleGenerateShareLink()
+      return
+    }
+
+    const shareUrl = `${window.location.origin}/p/${pkg.public_token}`
+    await navigator.clipboard.writeText(shareUrl)
+    setCopied(true)
+    toast.success('קישור הועתק ללוח!')
+    setTimeout(() => setCopied(false), 2000)
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
