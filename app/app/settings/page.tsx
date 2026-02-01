@@ -243,6 +243,45 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Images Management Section */}
+      <Card className="md:col-span-2">
+        <CardHeader className="border-b bg-gray-50">
+          <CardTitle className="text-xl">ניהול תמונות</CardTitle>
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-4">העלאת תמונות</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                העלה תמונות למדינות ויעדים דרך דפי הניהול שלהם. התמונות יישמרו ב-Supabase Storage.
+              </p>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p className="text-sm text-blue-800">
+                  <strong>הוראות:</strong> כדי להוסיף תמונות למדינות או יעדים, עבור לדפי &quot;מדינות&quot; או &quot;יעדים&quot; 
+                  ולחץ על &quot;מדינה חדשה&quot; או &quot;יעד חדש&quot;. תוכל להעלות תמונה ישירות בטופס.
+                </p>
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-semibold mb-4">מילוי אוטומטי של מדינות ויעדים</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                כדי למלא את מסד הנתונים במדינות ויעדים נפוצים, הרץ את סקריפט ה-SQL בקובץ:
+              </p>
+              <code className="block bg-gray-100 p-3 rounded-lg text-sm mb-4">
+                scripts/populate-countries-destinations.sql
+              </code>
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <p className="text-sm text-yellow-800">
+                  <strong>שימו לב:</strong> לפני הרצת הסקריפט, החלף את &apos;YOUR_AGENCY_ID&apos; במזהה הסוכנות שלך.
+                  תוכל למצוא את המזהה על ידי הרצת: <code>SELECT id FROM agencies LIMIT 1;</code>
+                </p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

@@ -5,7 +5,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Modal } from '@/components/ui/modal'
+import { ImageUpload } from '@/components/ui/image-upload'
 import { Plus, Search } from 'lucide-react'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthStore } from '@/store/useAuthStore'
 import { toast } from 'sonner'
@@ -25,7 +27,7 @@ export default function DestinationsPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [showModal, setShowModal] = useState(false)
-  const [newDestination, setNewDestination] = useState({ name: '', country_id: '', description: '' })
+  const [newDestination, setNewDestination] = useState({ name: '', country_id: '', description: '', image_url: '' })
   const [saving, setSaving] = useState(false)
   const [countries, setCountries] = useState<Country[]>([])
 
@@ -209,6 +211,14 @@ export default function DestinationsPage() {
               placeholder="תיאור היעד"
             />
           </div>
+          <ImageUpload
+            currentImage={newDestination.image_url}
+            onUpload={(url) => setNewDestination({ ...newDestination, image_url: url })}
+            onRemove={() => setNewDestination({ ...newDestination, image_url: '' })}
+            bucket="destination-images"
+            path={`destination-${Date.now()}`}
+            label="תמונת יעד"
+          />
           <div className="flex gap-2">
             <Button onClick={handleCreateDestination} disabled={saving} className="flex-1">
               {saving ? 'יוצר...' : 'צור יעד'}

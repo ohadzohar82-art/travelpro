@@ -21,7 +21,7 @@ type PackageItem = Database['public']['Tables']['package_items']['Row']
 
 export function PackageEditor({ packageId }: { packageId: string }) {
   const router = useRouter()
-  const { user } = useAuthStore()
+  const { user, setUser, setAgency } = useAuthStore()
   const [pkg, setPkg] = useState<Package | null>(null)
   const [days, setDays] = useState<PackageDay[]>([])
   const [items, setItems] = useState<PackageItem[]>([])
@@ -29,22 +29,70 @@ export function PackageEditor({ packageId }: { packageId: string }) {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    if (user && packageId) {
-      loadPackage()
+    const loadData = async () => {
+      // Load user from session if not in store
+      if (!user) {
+        try {
+          const supabase = createClient()
+          const { data: { session } } = await supabase.auth.getSession()
+          if (session?.user) {
+            const { data: userDataArray } = await supabase
+              .from('users')
+              .select('*, agencies(*)')
+              .eq('id', session.user.id)
+            if (userDataArray && userDataArray.length > 0) {
+              const userData = userDataArray[0]
+              setUser(userData)
+              const agencyData = Array.isArray(userData.agencies) 
+                ? userData.agencies[0] 
+                : userData.agencies
+              setAgency(agencyData)
+            }
+          }
+        } catch (error) {
+          console.error('Error loading user:', error)
+        }
+      }
+      
+      if (packageId) {
+        await loadPackage()
+      }
     }
+    
+    loadData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, packageId])
+  }, [packageId])
 
   const loadPackage = async () => {
     try {
       const supabase = createClient()
+      
+      // Get current user (from store or session)
+      let currentUser = user
+      if (!currentUser) {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user) {
+          const { data: userDataArray } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single()
+          if (userDataArray) {
+            currentUser = userDataArray
+          }
+        }
+      }
+
+      if (!currentUser?.agency_id) {
+        throw new Error('User agency not found')
+      }
 
       // Load package
       const { data: pkgData, error: pkgError } = await supabase
         .from('packages')
         .select('*')
         .eq('id', packageId)
-        .eq('agency_id', user?.agency_id)
+        .eq('agency_id', currentUser.agency_id)
         .single()
 
       if (pkgError) throw pkgError

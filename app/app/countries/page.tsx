@@ -5,7 +5,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { Modal } from '@/components/ui/modal'
+import { ImageUpload } from '@/components/ui/image-upload'
 import { Plus } from 'lucide-react'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthStore } from '@/store/useAuthStore'
 import { toast } from 'sonner'
@@ -18,7 +20,7 @@ export default function CountriesPage() {
   const [countries, setCountries] = useState<Country[]>([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
-  const [newCountry, setNewCountry] = useState({ name: '', name_en: '', code: '', currency: 'USD' })
+  const [newCountry, setNewCountry] = useState({ name: '', name_en: '', code: '', currency: 'USD', image_url: '' })
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
@@ -113,6 +115,7 @@ export default function CountriesPage() {
           name_en: newCountry.name_en || null,
           code: newCountry.code || null,
           currency: newCountry.currency,
+          image_url: newCountry.image_url || null,
         })
         .select()
         .single()
@@ -128,7 +131,7 @@ export default function CountriesPage() {
 
       toast.success('מדינה נוצרה בהצלחה!')
       setShowModal(false)
-      setNewCountry({ name: '', name_en: '', code: '', currency: 'USD' })
+      setNewCountry({ name: '', name_en: '', code: '', currency: 'USD', image_url: '' })
       loadCountries()
     } catch (error: any) {
       console.error('Error creating country:', error)
