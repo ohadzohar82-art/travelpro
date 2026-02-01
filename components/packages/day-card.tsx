@@ -24,7 +24,11 @@ interface DayCardProps {
 
 export function DayCard({ day, items, packageId, onUpdate, onDelete, onItemsChange }: DayCardProps) {
   const [isEditing, setIsEditing] = useState(false)
-  const [title, setTitle] = useState(day.title)
+  const [title, setTitle] = useState(day?.title || '')
+  
+  if (!day || !day.id) {
+    return null
+  }
 
   const handleSave = async () => {
     try {
@@ -82,7 +86,7 @@ export function DayCard({ day, items, packageId, onUpdate, onDelete, onItemsChan
                 className="flex-1 text-lg font-semibold cursor-pointer"
                 onClick={() => setIsEditing(true)}
               >
-                יום {day.day_number}: {day.title}
+                יום {day?.day_number || 0}: {day?.title || ''}
               </h3>
               <Button variant="ghost" size="sm" onClick={handleDelete}>
                 <Trash2 className="h-4 w-4" />

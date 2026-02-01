@@ -42,6 +42,10 @@ interface ItemCardProps {
 
 export function ItemCard({ item, onUpdate, onDelete }: ItemCardProps) {
   const [isEditing, setIsEditing] = useState(false)
+  
+  if (!item || !item.id) {
+    return null
+  }
 
   const handleDelete = async () => {
     if (!confirm('האם אתה בטוח שברצונך למחוק פריט זה?')) return
@@ -78,24 +82,24 @@ export function ItemCard({ item, onUpdate, onDelete }: ItemCardProps) {
           <div className="text-2xl">{itemTypeIcons[item.type] || '⭐'}</div>
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              <h4 className="font-semibold">{item.title}</h4>
+              <h4 className="font-semibold">{item?.title || 'פריט ללא שם'}</h4>
               <Badge variant="default" className="text-xs">
-                {itemTypeLabels[item.type]?.he || item.type}
+                {item?.type ? (itemTypeLabels[item.type]?.he || item.type) : 'לא ידוע'}
               </Badge>
             </div>
-            {item.subtitle && <p className="text-sm text-gray-600 mb-2">{item.subtitle}</p>}
-            {item.time_start && (
+            {item?.subtitle && <p className="text-sm text-gray-600 mb-2">{item.subtitle}</p>}
+            {item?.time_start && (
               <p className="text-xs text-gray-500">
                 {item.time_start}
-                {item.time_end && ` - ${item.time_end}`}
+                {item?.time_end && ` - ${item.time_end}`}
               </p>
             )}
-            {item.price > 0 && (
+            {(item?.price || 0) > 0 && (
               <p className="text-sm font-semibold mt-2">
                 {new Intl.NumberFormat('he-IL', {
                   style: 'currency',
                   currency: 'USD',
-                }).format(item.price)}
+                }).format(item.price || 0)}
               </p>
             )}
           </div>
