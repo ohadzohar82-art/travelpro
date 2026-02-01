@@ -27,6 +27,7 @@ export function PackageEditor({ packageId }: { packageId: string }) {
   const [items, setItems] = useState<PackageItem[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const loadData = async () => {
@@ -85,7 +86,9 @@ export function PackageEditor({ packageId }: { packageId: string }) {
 
       if (!currentUser?.agency_id) {
         console.error('No user or agency_id found')
-        toast.error('שגיאה: לא נמצא מזהה סוכנות. אנא התחבר מחדש.')
+        const errorMsg = 'שגיאה: לא נמצא מזהה סוכנות. אנא התחבר מחדש.'
+        setError(errorMsg)
+        toast.error(errorMsg)
         setLoading(false)
         return
       }
@@ -99,27 +102,34 @@ export function PackageEditor({ packageId }: { packageId: string }) {
 
       if (pkgError) {
         console.error('Package load error:', pkgError)
+        let errorMsg = 'שגיאה בטעינת החבילה'
         if (pkgError.message?.includes('schema cache') || pkgError.message?.includes('relation') || pkgError.message?.includes('does not exist')) {
-          toast.error('טבלת החבילות לא קיימת. אנא צור את הטבלאות ב-Supabase.')
+          errorMsg = 'טבלת החבילות לא קיימת. אנא צור את הטבלאות ב-Supabase.'
         } else if (pkgError.code === 'PGRST116') {
-          toast.error('חבילה לא נמצאה. ייתכן שהיא נמחקה או שאין לך הרשאה לצפות בה.')
+          errorMsg = 'חבילה לא נמצאה. ייתכן שהיא נמחקה או שאין לך הרשאה לצפות בה.'
         } else {
-          toast.error(`שגיאה בטעינת החבילה: ${pkgError.message}`)
+          errorMsg = `שגיאה בטעינת החבילה: ${pkgError.message || pkgError.code || 'שגיאה לא ידועה'}`
         }
+        setError(errorMsg)
+        toast.error(errorMsg)
         setLoading(false)
         return
       }
 
       if (!pkgData) {
-        toast.error('חבילה לא נמצאה')
+        const errorMsg = 'חבילה לא נמצאה'
+        setError(errorMsg)
+        toast.error(errorMsg)
         setLoading(false)
         return
       }
 
       // Check if user has access to this package
       if (pkgData.agency_id !== currentUser.agency_id) {
-        toast.error('אין לך הרשאה לצפות בחבילה זו')
-        router.push('/app/packages')
+        const errorMsg = 'אין לך הרשאה לצפות בחבילה זו'
+        setError(errorMsg)
+        toast.error(errorMsg)
+        setTimeout(() => router.push('/app/packages'), 2000)
         setLoading(false)
         return
       }
@@ -157,7 +167,9 @@ export function PackageEditor({ packageId }: { packageId: string }) {
       }
     } catch (error: any) {
       console.error('Unexpected error loading package:', error)
-      toast.error(error.message || 'שגיאה בטעינת החבילה')
+      const errorMsg = error.message || 'שגיאה בטעינת החבילה'
+      setError(errorMsg)
+      toast.error(errorMsg)
       setLoading(false)
     } finally {
       setLoading(false)
@@ -236,12 +248,22 @@ export function PackageEditor({ packageId }: { packageId: string }) {
     )
   }
 
-  if (!pkg) {
+  if (!pkg && !loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Card>
-          <CardContent className="p-6">
-            <p className="text-gray-500">חבילה לא נמצאה</p>
+        <Card className="max-w-md">
+          <CardContent className="p-6 text-center">
+            <p className="text-lg font-semibold text-gray-900 mb-2">
+              {error || 'חבילה לא נמצאה'}
+            </p>
+            <p className="text-sm text-gray-500 mb-4">
+              {error?.includes('טבלאות') 
+                ? 'אנא צור את הטבלאות ב-Supabase באמצעות הקובץ COMPLETE_DATABASE_SETUP.sql'
+                : 'החבילה לא קיימת, נמחקה, או שאין לך הרשאה לצפות בה.'}
+            </p>
+            <Button onClick={() => router.push('/app/packages')}>
+              חזור לרשימת החבילות
+            </Button>
           </CardContent>
         </Card>
       </div>
