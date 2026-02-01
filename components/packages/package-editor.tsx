@@ -84,21 +84,46 @@ export function PackageEditor({ packageId }: { packageId: string }) {
       }
 
       if (!currentUser?.agency_id) {
-        throw new Error('User agency not found')
+        console.error('No user or agency_id found')
+        toast.error('שגיאה: לא נמצא מזהה סוכנות. אנא התחבר מחדש.')
+        setLoading(false)
+        return
       }
 
-      // Load package
+      // Load package - try without agency_id first to see if it exists
       const { data: pkgData, error: pkgError } = await supabase
         .from('packages')
         .select('*')
         .eq('id', packageId)
-        .eq('agency_id', currentUser.agency_id)
         .single()
 
-      if (pkgError) throw pkgError
-      if (!pkgData) {
-        throw new Error('Package not found')
+      if (pkgError) {
+        console.error('Package load error:', pkgError)
+        if (pkgError.message?.includes('schema cache') || pkgError.message?.includes('relation') || pkgError.message?.includes('does not exist')) {
+          toast.error('טבלת החבילות לא קיימת. אנא צור את הטבלאות ב-Supabase.')
+        } else if (pkgError.code === 'PGRST116') {
+          toast.error('חבילה לא נמצאה. ייתכן שהיא נמחקה או שאין לך הרשאה לצפות בה.')
+        } else {
+          toast.error(`שגיאה בטעינת החבילה: ${pkgError.message}`)
+        }
+        setLoading(false)
+        return
       }
+
+      if (!pkgData) {
+        toast.error('חבילה לא נמצאה')
+        setLoading(false)
+        return
+      }
+
+      // Check if user has access to this package
+      if (pkgData.agency_id !== currentUser.agency_id) {
+        toast.error('אין לך הרשאה לצפות בחבילה זו')
+        router.push('/app/packages')
+        setLoading(false)
+        return
+      }
+
       setPkg(pkgData)
 
       // Load days
@@ -108,8 +133,13 @@ export function PackageEditor({ packageId }: { packageId: string }) {
         .eq('package_id', packageId)
         .order('day_number', { ascending: true })
 
-      if (daysError) throw daysError
-      setDays(daysData || [])
+      if (daysError) {
+        console.error('Days load error:', daysError)
+        // Don't fail completely if days can't load
+        setDays([])
+      } else {
+        setDays(daysData || [])
+      }
 
       // Load items
       const { data: itemsData, error: itemsError } = await supabase
@@ -118,11 +148,17 @@ export function PackageEditor({ packageId }: { packageId: string }) {
         .eq('package_id', packageId)
         .order('sort_order', { ascending: true })
 
-      if (itemsError) throw itemsError
-      setItems(itemsData || [])
+      if (itemsError) {
+        console.error('Items load error:', itemsError)
+        // Don't fail completely if items can't load
+        setItems([])
+      } else {
+        setItems(itemsData || [])
+      }
     } catch (error: any) {
+      console.error('Unexpected error loading package:', error)
       toast.error(error.message || 'שגיאה בטעינת החבילה')
-      router.push('/app/packages')
+      setLoading(false)
     } finally {
       setLoading(false)
     }
