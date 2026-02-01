@@ -43,30 +43,26 @@ export async function updateSession(request: NextRequest) {
     error: authError,
   } = await supabase.auth.getUser()
 
-  // Only redirect to login if:
-  // 1. No user AND
-  // 2. Not already on a public page AND
-  // 3. Not an error that might be temporary (like cookie not set yet)
+  // For /app routes, let the client-side handle authentication
+  // This avoids cookie timing issues after login
+  if (request.nextUrl.pathname.startsWith('/app')) {
+    // Always allow /app routes through - client will check auth
+    return supabaseResponse
+  }
+
+  // For other protected routes, check auth
   if (
     !user &&
-    !authError && // Don't redirect on auth errors, let client handle it
     !request.nextUrl.pathname.startsWith('/login') &&
     !request.nextUrl.pathname.startsWith('/signup') &&
     !request.nextUrl.pathname.startsWith('/forgot-password') &&
     !request.nextUrl.pathname.startsWith('/p/') &&
     request.nextUrl.pathname !== '/'
   ) {
-    // no user, potentially respond by redirecting the user to the login page
+    // no user, redirect to login
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
-  }
-
-  // If there's an auth error but we're trying to access /app, let it through
-  // The client-side will handle the redirect if needed
-  if (authError && request.nextUrl.pathname.startsWith('/app')) {
-    // Let the request through - client will handle auth check
-    return supabaseResponse
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
