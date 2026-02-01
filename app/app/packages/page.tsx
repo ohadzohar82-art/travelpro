@@ -22,20 +22,39 @@ export default function PackagesPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all')
 
   useEffect(() => {
-    if (user) {
-      loadPackages()
-    }
+    // Load packages even if user is not in store yet
+    loadPackages()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, statusFilter])
+  }, [statusFilter])
 
   const loadPackages = async () => {
     try {
       const supabase = createClient()
+      
+      // Get user from session if not in store
+      let currentUser = user
+      if (!currentUser) {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user) {
+          const { data: userDataArray } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single()
+          if (userDataArray) {
+            currentUser = userDataArray
+          }
+        }
+      }
+      
       let query = supabase
         .from('packages')
         .select('*')
-        .eq('agency_id', user?.agency_id)
         .order('created_at', { ascending: false })
+      
+      if (currentUser?.agency_id) {
+        query = query.eq('agency_id', currentUser.agency_id)
+      }
 
       if (statusFilter !== 'all') {
         query = query.eq('status', statusFilter)
