@@ -6,13 +6,14 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Save, Plus, Trash2 } from 'lucide-react'
+import { Save, Plus, Trash2, Share2, Copy, Check } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthStore } from '@/store/useAuthStore'
 import { toast } from 'sonner'
 import { DaysTimeline } from './days-timeline'
 import { ItemTypesPalette } from './item-types-palette'
 import { PriceSummary } from './price-summary'
+import { generatePublicToken } from '@/lib/utils'
 import type { Database } from '@/types/database'
 
 type Package = Database['public']['Tables']['packages']['Row']
@@ -28,6 +29,7 @@ export function PackageEditor({ packageId }: { packageId: string }) {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     const loadData = async () => {
@@ -300,10 +302,32 @@ export function PackageEditor({ packageId }: { packageId: string }) {
             )}
           </div>
         </div>
-        <Button onClick={handleSave} disabled={saving}>
-          <Save className="ml-2 h-4 w-4" />
-          {saving ? 'שומר...' : 'שמור'}
-        </Button>
+        <div className="flex items-center gap-2">
+          {pkg?.public_token ? (
+            <Button variant="outline" onClick={handleCopyLink}>
+              {copied ? (
+                <>
+                  <Check className="ml-2 h-4 w-4" />
+                  הועתק!
+                </>
+              ) : (
+                <>
+                  <Copy className="ml-2 h-4 w-4" />
+                  העתק קישור
+                </>
+              )}
+            </Button>
+          ) : (
+            <Button variant="outline" onClick={handleGenerateShareLink}>
+              <Share2 className="ml-2 h-4 w-4" />
+              צור קישור שיתוף
+            </Button>
+          )}
+          <Button onClick={handleSave} disabled={saving}>
+            <Save className="ml-2 h-4 w-4" />
+            {saving ? 'שומר...' : 'שמור'}
+          </Button>
+        </div>
       </div>
 
       {/* Package Info */}

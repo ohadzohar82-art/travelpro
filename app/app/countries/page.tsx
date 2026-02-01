@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { Modal } from '@/components/ui/modal'
 import { ImageUpload } from '@/components/ui/image-upload'
-import { Plus, Edit, Trash2 } from 'lucide-react'
+import { Plus, Edit, Trash2, Grid3x3, Grid2x2, LayoutGrid } from 'lucide-react'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthStore } from '@/store/useAuthStore'
@@ -23,6 +23,7 @@ export default function CountriesPage() {
   const [editingCountry, setEditingCountry] = useState<Country | null>(null)
   const [newCountry, setNewCountry] = useState({ name: '', name_en: '', code: '', currency: agency?.default_currency || 'ILS', image_url: '' })
   const [saving, setSaving] = useState(false)
+  const [gridCols, setGridCols] = useState<3 | 4 | 5>(3)
 
   useEffect(() => {
     loadCountries()
@@ -201,10 +202,41 @@ export default function CountriesPage() {
           <h1 className="text-3xl font-bold">מדינות</h1>
           <p className="text-gray-500 mt-2">נהל את המדינות שלך</p>
         </div>
-        <Button onClick={() => setShowModal(true)}>
-          <Plus className="ml-2 h-4 w-4" />
-          מדינה חדשה
-        </Button>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+            <Button
+              variant={gridCols === 3 ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setGridCols(3)}
+              className="h-8 w-8 p-0"
+              title="3 עמודות"
+            >
+              <Grid3x3 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={gridCols === 4 ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setGridCols(4)}
+              className="h-8 w-8 p-0"
+              title="4 עמודות"
+            >
+              <Grid2x2 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={gridCols === 5 ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setGridCols(5)}
+              className="h-8 w-8 p-0"
+              title="5 עמודות"
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+          </div>
+          <Button onClick={() => setShowModal(true)}>
+            <Plus className="ml-2 h-4 w-4" />
+            מדינה חדשה
+          </Button>
+        </div>
       </div>
 
       <Modal
@@ -281,7 +313,11 @@ export default function CountriesPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className={`grid gap-4 ${
+          gridCols === 3 ? 'md:grid-cols-2 lg:grid-cols-3' :
+          gridCols === 4 ? 'md:grid-cols-2 lg:grid-cols-4' :
+          'md:grid-cols-3 lg:grid-cols-5'
+        }`}>
           {countries.map((country) => (
             <Card key={country.id} className="overflow-hidden hover:shadow-md transition-shadow relative">
               {country.image_url ? (

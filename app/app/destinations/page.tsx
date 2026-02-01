@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Modal } from '@/components/ui/modal'
 import { ImageUpload } from '@/components/ui/image-upload'
-import { Plus, Search, Edit, Trash2 } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, Grid3x3, Grid2x2, LayoutGrid } from 'lucide-react'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthStore } from '@/store/useAuthStore'
@@ -31,6 +31,7 @@ export default function DestinationsPage() {
   const [newDestination, setNewDestination] = useState({ name: '', country_id: '', description: '', image_url: '' })
   const [saving, setSaving] = useState(false)
   const [countries, setCountries] = useState<Country[]>([])
+  const [gridCols, setGridCols] = useState<3 | 4 | 5>(3)
 
   useEffect(() => {
     loadDestinations()
@@ -211,10 +212,41 @@ export default function DestinationsPage() {
           <h1 className="text-3xl font-bold">יעדים</h1>
           <p className="text-gray-500 mt-2">נהל את כל היעדים שלך</p>
         </div>
-        <Button onClick={() => setShowModal(true)}>
-          <Plus className="ml-2 h-4 w-4" />
-          יעד חדש
-        </Button>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+            <Button
+              variant={gridCols === 3 ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setGridCols(3)}
+              className="h-8 w-8 p-0"
+              title="3 עמודות"
+            >
+              <Grid3x3 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={gridCols === 4 ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setGridCols(4)}
+              className="h-8 w-8 p-0"
+              title="4 עמודות"
+            >
+              <Grid2x2 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={gridCols === 5 ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setGridCols(5)}
+              className="h-8 w-8 p-0"
+              title="5 עמודות"
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+          </div>
+          <Button onClick={() => setShowModal(true)}>
+            <Plus className="ml-2 h-4 w-4" />
+            יעד חדש
+          </Button>
+        </div>
       </div>
 
       <Modal
@@ -306,7 +338,11 @@ export default function DestinationsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className={`grid gap-4 ${
+          gridCols === 3 ? 'md:grid-cols-2 lg:grid-cols-3' :
+          gridCols === 4 ? 'md:grid-cols-2 lg:grid-cols-4' :
+          'md:grid-cols-3 lg:grid-cols-5'
+        }`}>
           {destinations.map((destination) => (
             <Card key={destination.id} className="hover:shadow-md transition-shadow overflow-hidden relative">
               {destination.image_url ? (

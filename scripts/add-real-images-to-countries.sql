@@ -58,6 +58,97 @@ WHERE name = 'דובאי'
   AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
   AND (image_url IS NULL OR image_url = '');
 
+-- פורטוגל
+UPDATE countries
+SET image_url = 'https://images.unsplash.com/photo-1529260830199-42c24126f198?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80'
+WHERE name = 'פורטוגל' 
+  AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
+  AND (image_url IS NULL OR image_url = '');
+
+-- צרפת
+UPDATE countries
+SET image_url = 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80'
+WHERE name = 'צרפת' 
+  AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
+  AND (image_url IS NULL OR image_url = '');
+
+-- בריטניה
+UPDATE countries
+SET image_url = 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80'
+WHERE name = 'בריטניה' 
+  AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
+  AND (image_url IS NULL OR image_url = '');
+
+-- ארצות הברית
+UPDATE countries
+SET image_url = 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80'
+WHERE name = 'ארצות הברית' 
+  AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
+  AND (image_url IS NULL OR image_url = '');
+
+-- יפן
+UPDATE countries
+SET image_url = 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80'
+WHERE name = 'יפן' 
+  AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
+  AND (image_url IS NULL OR image_url = '');
+
+-- מצרים
+UPDATE countries
+SET image_url = 'https://images.unsplash.com/photo-1539650116574-75c0c6d73a6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80'
+WHERE name = 'מצרים' 
+  AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
+  AND (image_url IS NULL OR image_url = '');
+
+-- מרוקו
+UPDATE countries
+SET image_url = 'https://images.unsplash.com/photo-1539650116574-75c0c6d73a6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80'
+WHERE name = 'מרוקו' 
+  AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
+  AND (image_url IS NULL OR image_url = '');
+
+-- הודו
+UPDATE countries
+SET image_url = 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80'
+WHERE name = 'הודו' 
+  AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
+  AND (image_url IS NULL OR image_url = '');
+
+-- סין
+UPDATE countries
+SET image_url = 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80'
+WHERE name = 'סין' 
+  AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
+  AND (image_url IS NULL OR image_url = '');
+
+-- אוסטרליה
+UPDATE countries
+SET image_url = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80'
+WHERE name = 'אוסטרליה' 
+  AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
+  AND (image_url IS NULL OR image_url = '');
+
+-- ניו זילנד
+UPDATE countries
+SET image_url = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80'
+WHERE name = 'ניו זילנד' 
+  AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
+  AND (image_url IS NULL OR image_url = '');
+
+-- דרום אפריקה
+UPDATE countries
+SET image_url = 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80'
+WHERE name = 'דרום אפריקה' 
+  AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
+  AND (image_url IS NULL OR image_url = '');
+
+-- ברזיל
+UPDATE countries
+SET image_url = 'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80'
+WHERE name = 'ברזיל' 
+  AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
+  AND (image_url IS NULL OR image_url = '');
+
 -- ============================================
 -- סיום
 -- ============================================
