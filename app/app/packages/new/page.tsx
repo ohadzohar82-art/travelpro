@@ -33,14 +33,24 @@ export default function NewPackagePage() {
         if (session?.user) {
           const { data: userDataArray } = await supabase
             .from('users')
-            .select('*, agencies(*)')
+            .select('*')
             .eq('id', session.user.id)
-          if (userDataArray && userDataArray.length > 0) {
-            currentUser = userDataArray[0]
-            if (currentUser && currentUser.agencies) {
-              currentAgency = Array.isArray(currentUser.agencies) 
-                ? currentUser.agencies[0] 
-                : currentUser.agencies
+            .single()
+          
+          if (userDataArray) {
+            currentUser = userDataArray
+            
+            // Load agency separately if we have agency_id
+            if (currentUser.agency_id && !currentAgency) {
+              const { data: agencyData } = await supabase
+                .from('agencies')
+                .select('*')
+                .eq('id', currentUser.agency_id)
+                .single()
+              
+              if (agencyData) {
+                currentAgency = agencyData
+              }
             }
           }
         }
