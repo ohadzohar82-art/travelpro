@@ -30,9 +30,6 @@ export default function LoginPage() {
 
       if (authError) throw authError
 
-      // Refresh session to ensure cookies are set
-      await supabase.auth.refreshSession()
-
       // Fetch user and agency data
       const { data: userDataArray, error: userError } = await supabase
         .from('users')
@@ -53,13 +50,10 @@ export default function LoginPage() {
         : userData.agencies
       setAgency(agency)
 
-      // Success - redirect immediately
       toast.success('התחברת בהצלחה!')
       
-      // Force redirect - this always works, no matter what
-      setTimeout(() => {
-        window.location.href = '/app'
-      }, 500)
+      // Redirect immediately - this MUST happen
+      window.location.href = '/app'
     } catch (error: any) {
       console.error('Login error:', error)
       toast.error(error.message || 'שגיאה בהתחברות')
