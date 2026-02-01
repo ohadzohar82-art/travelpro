@@ -1,9 +1,10 @@
 'use client'
 
 import { PackageEditor } from '@/components/packages/package-editor'
-import { use, Suspense } from 'react'
+import { Suspense } from 'react'
 import { ErrorBoundary } from '@/components/ui/error-boundary'
 import { useParams } from 'next/navigation'
+import { Loader } from '@/components/ui/loader'
 
 function PackageEditorWrapper() {
   const params = useParams()
