@@ -38,21 +38,21 @@ WHERE name = 'ציאנג מאי'
 
 -- אתונה
 UPDATE destinations
-SET image_url = 'https://images.unsplash.com/photo-1503789146722-cf137a3c0fea?w=800&q=80'
+SET image_url = 'https://images.unsplash.com/photo-1503789146722-cf137a3c0fea?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80'
 WHERE name = 'אתונה' 
   AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
   AND (image_url IS NULL OR image_url = '');
 
 -- סנטוריני
 UPDATE destinations
-SET image_url = 'https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=800&q=80'
+SET image_url = 'https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80'
 WHERE name = 'סנטוריני' 
   AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
   AND (image_url IS NULL OR image_url = '');
 
 -- מיקונוס
 UPDATE destinations
-SET image_url = 'https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=800&q=80'
+SET image_url = 'https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80'
 WHERE name = 'מיקונוס' 
   AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
   AND (image_url IS NULL OR image_url = '');
@@ -63,28 +63,28 @@ WHERE name = 'מיקונוס'
 
 -- רומא
 UPDATE destinations
-SET image_url = 'https://images.unsplash.com/photo-1529260830199-42c24126f198?w=800&q=80'
+SET image_url = 'https://images.unsplash.com/photo-1529260830199-42c24126f198?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80'
 WHERE name = 'רומא' 
   AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
   AND (image_url IS NULL OR image_url = '');
 
 -- ונציה
 UPDATE destinations
-SET image_url = 'https://images.unsplash.com/photo-1514890547357-a9ee19272597?w=800&q=80'
+SET image_url = 'https://images.unsplash.com/photo-1514890547357-a9ee19272597?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80'
 WHERE name = 'ונציה' 
   AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
   AND (image_url IS NULL OR image_url = '');
 
 -- מילאנו
 UPDATE destinations
-SET image_url = 'https://images.unsplash.com/photo-1529260830199-42c24126f198?w=800&q=80'
+SET image_url = 'https://images.unsplash.com/photo-1529260830199-42c24126f198?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80'
 WHERE name = 'מילאנו' 
   AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
   AND (image_url IS NULL OR image_url = '');
 
 -- פירנצה
 UPDATE destinations
-SET image_url = 'https://images.unsplash.com/photo-1520175480921-4edfa2983e0f?w=800&q=80'
+SET image_url = 'https://images.unsplash.com/photo-1520175480921-4edfa2983e0f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80'
 WHERE name = 'פירנצה' 
   AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
   AND (image_url IS NULL OR image_url = '');
@@ -95,21 +95,21 @@ WHERE name = 'פירנצה'
 
 -- מדריד
 UPDATE destinations
-SET image_url = 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=800&q=80'
+SET image_url = 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80'
 WHERE name = 'מדריד' 
   AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
   AND (image_url IS NULL OR image_url = '');
 
 -- ברצלונה
 UPDATE destinations
-SET image_url = 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=800&q=80'
+SET image_url = 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80'
 WHERE name = 'ברצלונה' 
   AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
   AND (image_url IS NULL OR image_url = '');
 
 -- סביליה
 UPDATE destinations
-SET image_url = 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=800&q=80'
+SET image_url = 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80'
 WHERE name = 'סביליה' 
   AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
   AND (image_url IS NULL OR image_url = '');
@@ -120,21 +120,21 @@ WHERE name = 'סביליה'
 
 -- איסטנבול
 UPDATE destinations
-SET image_url = 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=800&q=80'
+SET image_url = 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80'
 WHERE name = 'איסטנבול' 
   AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
   AND (image_url IS NULL OR image_url = '');
 
 -- קפדוקיה
 UPDATE destinations
-SET image_url = 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=800&q=80'
+SET image_url = 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80'
 WHERE name = 'קפדוקיה' 
   AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
   AND (image_url IS NULL OR image_url = '');
 
 -- אנטליה
 UPDATE destinations
-SET image_url = 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&q=80'
+SET image_url = 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80'
 WHERE name = 'אנטליה' 
   AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
   AND (image_url IS NULL OR image_url = '');
@@ -145,14 +145,14 @@ WHERE name = 'אנטליה'
 
 -- דובאי
 UPDATE destinations
-SET image_url = 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&q=80'
+SET image_url = 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80'
 WHERE name = 'דובאי' 
   AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
   AND (image_url IS NULL OR image_url = '');
 
 -- אבו דאבי
 UPDATE destinations
-SET image_url = 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&q=80'
+SET image_url = 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80'
 WHERE name = 'אבו דאבי' 
   AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
   AND (image_url IS NULL OR image_url = '');
@@ -163,21 +163,21 @@ WHERE name = 'אבו דאבי'
 
 -- תל אביב
 UPDATE destinations
-SET image_url = 'https://images.unsplash.com/photo-1540541338287-41700207dee6?w=800&q=80'
+SET image_url = 'https://images.unsplash.com/photo-1540541338287-41700207dee6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80'
 WHERE name = 'תל אביב' 
   AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
   AND (image_url IS NULL OR image_url = '');
 
 -- ירושלים
 UPDATE destinations
-SET image_url = 'https://images.unsplash.com/photo-1515542622106-78bda8ba0e5b?w=800&q=80'
+SET image_url = 'https://images.unsplash.com/photo-1515542622106-78bda8ba0e5b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80'
 WHERE name = 'ירושלים' 
   AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
   AND (image_url IS NULL OR image_url = '');
 
 -- אילת
 UPDATE destinations
-SET image_url = 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&q=80'
+SET image_url = 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80'
 WHERE name = 'אילת' 
   AND agency_id = '4af931ea-e4f8-4728-9d82-30de9b2f2b14'
   AND (image_url IS NULL OR image_url = '');
